@@ -21,5 +21,26 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    char *prog_name = argv[0];
+    char *file_name = argv[1];
+    int p = 1;
+    StopWatch_t sw;
 
+    /*constructs a graph from a file*/
+    graph_t *G = construct_graph(file_name);
+
+    printf("Loaded Graph:");
+    print_graph(G);
+
+    startTimer(&sw);
+    fw_serial(G);
+    stopTimer(&sw);
+
+    double time = getElapsedTime(&sw);
+
+    printf("Computed Result:");
+    print_graph(G);
+
+    write_result(G->V, p, prog_name, time, G);
+    return 1;
 }

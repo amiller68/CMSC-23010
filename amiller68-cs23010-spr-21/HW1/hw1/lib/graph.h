@@ -1,6 +1,8 @@
 #ifndef GRAPH_H_
 #define GRAPH_H_
 
+#include <stdbool.h>
+
 typedef struct graph {
     int V;
     int **M;
@@ -29,16 +31,28 @@ void print_graph(graph_t *G);
  * write_result : writes the contents of an adjacecny matrix to an appropriately
  *                named text file
  *
- * result - a pointer to a 2D array to convert to text
+ * n - number of vertices to include
  *
- * file_name - a pointer to a file prefix
+ * t - how many threads were used
  *
- * srt - a double describing a serial runtime
+ * prog - a char pointer to the program name
  *
- * prt - a double describing a parallel runtime
+ * time - a double describing a runtime
  *
  * returns : 0 on success, 1 on error
  */
-int write_result(int **result, char *file_name, double srt, double prt);
+ int write_result(int n, int t, char *prog, double time, graph_t *G);
+
+/*
+ * compare_graphs : compare the contents of two graphs
+ *
+ * a - a pointer to a graph_t instance
+ *
+ * b - a pointer to a graph_t instance
+ *
+ * returns : True if the graphs match, False if otherwise
+ */
+bool compare_graphs(graph_t *a, graph_t *b);
+
 
 #endif

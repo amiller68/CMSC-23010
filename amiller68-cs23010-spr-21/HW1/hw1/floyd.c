@@ -1,6 +1,6 @@
 #include "lib/floyd.h"
 
-int fw_sequential(graph_t *G)
+int fw_serial(graph_t *G)
 {
     return 0;
 }

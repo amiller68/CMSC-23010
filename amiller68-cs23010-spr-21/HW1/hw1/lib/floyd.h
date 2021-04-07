@@ -3,7 +3,7 @@
 
 #include "graph.h"
 
-int fw_sequential(graph_t *G);
+int fw_serial(graph_t *G);
 
 int fw_parallel(graph_t *G, int p);
 
