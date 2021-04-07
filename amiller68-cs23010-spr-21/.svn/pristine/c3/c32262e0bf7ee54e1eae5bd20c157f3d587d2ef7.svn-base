@@ -1,0 +1,98 @@
+\documentclass[]{article}
+%opening
+\title{Design Document}
+\author{Alex Miller}
+\addtolength{\oddsidemargin}{-.875in}
+\addtolength{\evensidemargin}{-.875in}
+\addtolength{\textwidth}{1.75in}
+
+\addtolength{\topmargin}{-.875in}
+\addtolength{\textheight}{1.75in}
+\setcounter{secnumdepth}{0}
+\usepackage{cancel}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage[ruled,vlined, linesnumbered]{algorithm2e}
+\DontPrintSemicolon
+
+
+\begin{document}
+	\maketitle
+
+\section{Modules, data structures, interfaces, invariants:}
+The program will be broken up into two modules, main.c and floyd.c. main.c will describe the following functionality:
+\begin{itemize}
+	\item Take as input:
+	\begin{itemize}
+		\item The number of threads to use in the parallelized section of the code; call this value $p$
+		\item A text file representing an adjacency matrix; let it be called $foo.txt$. Integers greater than $1000$ in the adjacency matrix represent the lack of an edge between vertices
+	\end{itemize}
+	\item Generate a $graph\_t$ instance that describes $foo.txt$ with the following attributes:
+	\begin{itemize}
+		\item The number of vertices in the adjacency matrix
+		\item A 2D array that describes the adjacency matrix
+	\end{itemize}
+	\item Call this instance $foo$; it is generated with a function $construct\_graph$ that takes $foo.txt$'s FILE pointer as input
+	\item Compute the shortest paths between vertices in $foo$ using $fw\_serial$; the result of this operation is a 2D array that represents shortest path distances between vertices in $foo$. Call this result $res\_serial$. Note the time it takes to generate this result as $serial\_time$. We will discuss this function later.  For the time being understand it as our serial implementation of Floyd-Warshall.
+	\item Compute the shortest paths between vertices in $foo$ using $fw\_parallel$ and $p$ threads; the result of this operation is a 2D array that represents shortest path distances between vertices in $foo$. Call this result $res\_parallel$. Note the time it takes to generate this result as $parallel\_time$. We will discuss this function later. For the time being understand it as our parallelized implementation of Floyd-Warshall.
+	\item If $res_serial$ and $res_parallel$ are identical, then we store $res_parallel$ in a file named $foo\_res\_<parallel\_time:serial\_time>$
+	\item Otherwise, we raise an error
+
+\end{itemize}
+The purpose of $main.c$ is to run convert a text-based adjacency matrix into a form that we can operate with, namely a 2D array. We use this 2D array firstly to compute a shortest path result using a serialized version of Floyd-Warshall, $fw\_serial$. Noting the time and result for testing purposes, we then run $fw\_parallel$. We can assume that $fw\_serial$ gives a the correct shortest path result, since it is sufficiently verifiable. We can therefore use it's output as a justification for accepting the output of $fw\_parallel$.
+\\
+The other module, $floyd.c$ describes the datatypes and functions referenced in $main.c$:
+\begin{itemize}
+	\item $graph_t$
+	\begin{itemize}
+		\item This data type describes a graph in the form of an adjacency matrix
+		\item It contains the following attributes:
+		\begin{itemize}
+			\item $V$: the number of vertices in the graph
+			\item $M$: the adjacency matrix
+		\end{itemize}
+	\end{itemize}
+	\item graph\_t  $construct\_graph(FILE)$
+	\begin{itemize}
+		\item $FILE$ describes a file containing an adjacency matrix
+		\item This function outputs the appropriate representation in a $graph\_t$ instance
+	\end{itemize}
+	\item int[][] $fw\_serial(g)$
+	\begin{itemize}
+		\item $g$ describes a $graph\_t$ instance
+		\item Name a 2D array $res$, which will  eventually contain our shortest path table.
+		\item Initially $res \leftarrow g.V$
+		\item $\forall k, \forall i, \forall j \leq g.V$, compute the following:
+		\begin{itemize}
+			\item If $res[i][j] \leftarrow MIN(res[i][j], res[i][k] +res[k][j])$ 
+		\end{itemize}
+		\item This is sufficient for computing shortest paths within an adjacencey matrix (\href{https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm}{Source}).
+		\item Return $res$
+	\end{itemize}
+	\item int[][] $fw\_parallel(g, p)$
+	\begin{itemize}
+		\item $g$ describes a $graph\_t$ instance
+		\item $p$ is an integer specifying the number of threads to use in computing a result
+		\item Name a 2D array $res$, which will  eventually contain our shortest path table.
+		\item Initially $res \leftarrow g.V$
+		\item Here, we must note that the serial version of Floyd -Warshall operates by calculating the shortest distnace between all $(i, j)$ pairs for increasing values of $k$. We can say then that while the innner loops of the serialized verion are dependent on the outer-most loop, they themselves are independent of each other. Therefore, this section of the code is ripe for parallelization.
+		\item Therefore, I propose the following parallelized loop structure to compute shortest paths using Floyd-Warshall: $\forall k \leq g.V,$ compute all the shortest path lengths bewtween all $(i, j)$ pairs in parallel. For a single thread, this could look like, for a fixed value of $k', i'$, $\forall j \leq g.V,$ computing $res[i'][j] \leftarrow MIN(res[i'][j], res[i'][k'] +res[k'][j])$. In other words, we should turn the inner for-loop in the serialized version into a parallel for-loop in which a pool of threads computes shortest path lengths bewtween all $(i, j)$ pairs in parallel for a given value of $k$
+		\item As an invariant, we know that we will always have generated the shortest path lengths of all $(i,j)$ pairs for a value of $k$ before we generate such lengths for a value of $k + 1$, maintaining data dependencies within the algorithm.
+	\end{itemize}
+\end{itemize}
+
+
+\section{Test plan:} 
+Initially, I will verify that my serial implementation of Floyd-Warshall is correct by reviewing my implementation directly as well as testing trivially small example matricies and verifying results. Considering that the implementation of a serial Floyd-Warshall algorithm is a reasonably reproducable and simple dynamic program, this should be enough to verify correctness.
+\\
+I will then use the validity of my serialized implementation in order to verify results produced by my parallel implementation of Floyd-Warshal. Because my serial implementation is verifiable, I can compare results of $fw\_serial$ and $fw\_parallel$ in order to infer the correctness of $fw\_parallel$. 
+
+%How will you know if your software will work?  What tests will you run? What are the inputs or conditions where you think it is most likely to fail?%
+
+\section{Expected Performance (Performance Hypotheses):} 
+%Each assignment has a list of experiments for you to run.  You should define your expectations for your results.  This is very important and often overlooked in CS.  If we were physicists, we would not propose to setup an experiment and just see what happens, we would setup an experiment with a clear expectation of what we would measure and why.  We want to adopt that same idea in our approach to understanding computer systems.%
+
+
+
+\end{document}
