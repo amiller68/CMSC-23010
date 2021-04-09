@@ -3,14 +3,21 @@
 
 #include <stdbool.h>
 
+#define MAX_V 1024
+#define MAX_EDGE 10
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+
 typedef struct graph {
-    int V;
-    int **M;
+    int num_v; //NUmber of vertices in the graph
+    int M[MAX_V][MAX_V]; //Easiest to implement
 } graph_t;
 
 
 /*
- * construct_graph : constructs a graoh from an appropriately formatted text file
+ * construct_graph : constructs a graph representation from an appropriately
+ *                   formatted text file. Does not take malformed text files as input,
+ *                   assumes a file describes an N X N adjacecny matrix. Assumes
+ *                   that files are named "n.txt"
  *
  * file_name : a pointer to a char array containing a file name to read
  *
@@ -42,17 +49,6 @@ void print_graph(graph_t *G);
  * returns : 0 on success, 1 on error
  */
  int write_result(int n, int t, char *prog, double time, graph_t *G);
-
-/*
- * compare_graphs : compare the contents of two graphs
- *
- * a - a pointer to a graph_t instance
- *
- * b - a pointer to a graph_t instance
- *
- * returns : True if the graphs match, False if otherwise
- */
-bool compare_graphs(graph_t *a, graph_t *b);
 
 
 #endif

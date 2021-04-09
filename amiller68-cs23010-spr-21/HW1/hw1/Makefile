@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Werror -O3
+CFLAGS = -Wall -Werror -O3 -Wno-unused-variable
 OBJS = floyd.o graph.o stopwatch.o
 TARGETS = fw_serial fw_parallel
 
@@ -28,3 +28,5 @@ graph.o: graph.c lib/graph.h
 
 clean:
 	rm -f *~ *.o  $(TARGETS)
+	rm tests/*
+	rm res/*

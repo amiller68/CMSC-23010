@@ -1,19 +1,23 @@
-/*
-When I finally want to test the results of my program, I can write a bash script that does the following:
-For a list of values N and list of values T,
-    For some n \in N, we require the following results:
-        Generate a random graph with n vertices
-        Run the serial program on the graph, record the time it takes
-        record the result in <n:1>_serial_<time>.txt
-        for t \in T:
-            run the parallel program on the graph using t threads, record the time it takes
-            record the result in  <n:t>_parallel_<time>.txt
-This implies that within by bash script, I'm going to want the following structure:
-For n \in N
-    python graph.py n --> dir/n.txt //an adajacency matrix with n vertices
-    ./serial n.txt 1 --> <dir/n:1>_serial_<time>.txt //a result table text file
-    for t in T
-        ./parallel n.txt t --> <dir/n:t>_parallel_<time>,txt // a result table text file
-    Compare the contents of the serial output to the parallel output files using bash
- * Takes as input:
- */
+#!/bin/bash
+N="16 32 64 128 256 512 1024"
+T="2 4 8 16 32 64"
+
+printf "Testing script...\n"
+for n in $N; do
+    python3 graph.py $n
+    printf 'Created new graph : n = %s\n' "$n"
+    file_name="tests/${n}.txt"
+    printf 'Running serial program : n = %s\n' "$n"
+    ./fw_serial $file_name 1
+    s_res_file='find res/ -name "$n:1_fw_serial_*.txt"'
+    for t in $T; do
+        printf 'Running parallel program : n = %s | t = %s\n' "$n" "$t"
+        ./fw_parallel $file_name $t
+        p_res_file='find res/ -name "$n:$t_fw_parallel_*.txt"'
+        if cmp -s "$s_res_file" "$p_res_file"; then
+            true
+        else
+            printf 'SERR: Failed operation <%s:%s>\n' "$n" "$t"
+        fi
+    done
+done

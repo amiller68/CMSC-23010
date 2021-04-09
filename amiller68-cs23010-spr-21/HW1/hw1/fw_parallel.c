@@ -29,8 +29,8 @@
      /*constructs a graph from a file*/
      graph_t *G = construct_graph(file_name);
 
-     printf("Loaded Graph:");
-     print_graph(G);
+     //printf("Loaded Graph:\n");
+     //print_graph(G);
 
      startTimer(&sw);
      fw_parallel(G, p);
@@ -38,9 +38,9 @@
 
      double time = getElapsedTime(&sw);
 
-     printf("Computed Result:");
-     print_graph(G);
+     //printf("Computed Result:\n");
+     //print_graph(G);
 
-     write_result(G->V, p, prog_name, time, G);
-     return 1;
+     write_result(G->num_v, p, prog_name, time, G);
+     return 0;
  }
