@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Werror -O3 -Wno-unused-variable -pthread
+CFLAGS = -Wall -Werror -O3 -Wno-unused-variable
 OBJS = floyd.o graph.o stopwatch.o
 TARGETS = fw_serial fw_parallel
 

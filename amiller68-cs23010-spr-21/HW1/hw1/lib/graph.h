@@ -34,6 +34,8 @@ graph_t *construct_graph(char *file_name);
  */
 void print_graph(graph_t *G);
 
+void print_sq(graph_t *G, int i, int j, int b_size);
+
 /*
  * write_result : writes the contents of an adjacecny matrix to an appropriately
  *                named text file

@@ -59,23 +59,6 @@ void print_graph(graph_t *G)
     return;
 }
 
-void print_sq(graph_t *G, int i, int j, int b_size)
-{
-    int num_v = G->num_v;
-
-    for(int x = i; x < i + b_size; x++)
-    {
-        for(int y = j; y < j + b_size; y++)
-        {
-            printf("%d ", G->M[x][y]);
-        }
-        printf("\n");
-    }
-
-    return;
-}
-
-
 /* see lib/graph.h */
 int write_result(int n, int t, char *prog, double time, graph_t *G)
 {

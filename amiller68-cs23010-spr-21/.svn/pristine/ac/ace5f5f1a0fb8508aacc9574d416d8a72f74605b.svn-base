@@ -29,12 +29,6 @@
      /*constructs a graph from a file*/
      graph_t *G = construct_graph(file_name);
 
-     if(!G)
-     {
-         printf("Failed to construct graph\n");
-         return 0;
-     }
-
      //printf("Loaded Graph:\n");
      //print_graph(G);
 
@@ -44,10 +38,9 @@
 
      double time = getElapsedTime(&sw);
 
-     printf("Computed Result:\n");
-     print_graph(G);
+     //printf("Computed Result:\n");
+     //print_graph(G);
 
      write_result(G->num_v, p, prog_name, time, G);
-     free(G);
      return 0;
  }
