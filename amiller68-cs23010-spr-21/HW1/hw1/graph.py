@@ -20,6 +20,6 @@ if __name__ == "__main__":
                 out[i][j] = random.randint(1, 2000)
 
     #save the result to a csv
-    with open(file_name,"w+") as out_txt:
+    with open(file_name,"w") as out_txt:
         csvWriter = csv.writer(out_txt,delimiter=' ')
         csvWriter.writerows(out)
