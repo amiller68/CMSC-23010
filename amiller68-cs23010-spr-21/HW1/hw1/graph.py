@@ -17,7 +17,7 @@ if __name__ == "__main__":
         for j in range(n):
             if not i == j:
                 #Roughly half of all edges are "infinite"
-                out[i][j] = random.randint(1, 20)
+                out[i][j] = random.randint(1, 2000)
 
     #save the result to a csv
     with open(file_name,"w") as out_txt:

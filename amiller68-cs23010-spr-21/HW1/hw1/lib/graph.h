@@ -3,12 +3,15 @@
 
 #include <stdbool.h>
 
-#define MAX_V 1024
+#define MAX_V 4096
 #define MAX_EDGE 10
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 typedef struct graph {
     int num_v; //NUmber of vertices in the graph
+    int b_i; //A block's i dimension
+    int b_j; //A block's j dimension
+    int k;
     int M[MAX_V][MAX_V]; //Easiest to implement
 } graph_t;
 
@@ -34,7 +37,7 @@ graph_t *construct_graph(char *file_name);
  */
 void print_graph(graph_t *G);
 
-void print_sq(graph_t *G, int i, int j, int b_size);
+void print_sq(graph_t *G, int i, int j);
 
 /*
  * write_result : writes the contents of an adjacecny matrix to an appropriately

@@ -10,7 +10,7 @@
  * G - a pointer to a graph_t instance
  *
  * return : 0 on succes, 1 on error
- */          
+ */
 int fw_serial(graph_t *G);
 
 int fw_parallel(graph_t *G, int p);

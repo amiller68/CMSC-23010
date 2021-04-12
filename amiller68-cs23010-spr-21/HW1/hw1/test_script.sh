@@ -15,8 +15,6 @@ for n in $N; do
         ./fw_parallel $file_name $t
         p_res_file='find res/ -name "$n:$t_fw_parallel_*.txt"'
         if cmp -s "$s_res_file" "$p_res_file"; then
-            true
-        else
             printf 'SERR: Failed operation <%s:%s>\n' "$n" "$t"
         fi
     done

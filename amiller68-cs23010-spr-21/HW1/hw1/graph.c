@@ -22,6 +22,9 @@ graph_t *construct_graph(char *file_name)
 
     graph_t *G = (graph_t *) malloc(sizeof(graph_t));
     G->num_v = num_v;
+    G->b_i = 0; //A block's i dimension
+    G->b_j = 0; //A block's j dimension
+    G->k = 0; //What value of k has been calcualated?
 
     //printf("This graph should have %d vertices\n", num_v);
 
@@ -59,13 +62,13 @@ void print_graph(graph_t *G)
     return;
 }
 
-void print_sq(graph_t *G, int i, int j, int b_size)
+void print_sq(graph_t *G, int i, int j)
 {
     int num_v = G->num_v;
 
-    for(int x = i; x < i + b_size; x++)
+    for(int x = i; x < i + G->b_i; x++)
     {
-        for(int y = j; y < j + b_size; y++)
+        for(int y = j; y < j + G->b_j; y++)
         {
             printf("%d ", G->M[x][y]);
         }
@@ -84,7 +87,7 @@ int write_result(int n, int t, char *prog, double time, graph_t *G)
         <n>:<t>_<prog>_<time>.txt
     */
 
-    char file_name[50];
+    char file_name[100];
     char int_buff[10];
     int num_v = G->num_v;
     FILE *fp;

@@ -29,17 +29,11 @@ int main(int argc, char *argv[])
     /*constructs a graph from a file*/
     graph_t *G = construct_graph(file_name);
 
-    //printf("Loaded Graph:\n");
-    //print_graph(G);
-
     startTimer(&sw);
     fw_serial(G);
     stopTimer(&sw);
 
     double time = getElapsedTime(&sw);
-
-    //printf("Computed Result, %f s:\n", time);
-    //print_graph(G);
 
     write_result(G->num_v, p, prog_name, time, G);
     free(G);
