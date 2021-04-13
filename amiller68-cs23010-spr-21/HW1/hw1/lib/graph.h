@@ -11,7 +11,6 @@ typedef struct graph {
     int num_v; //NUmber of vertices in the graph
     int b_i; //A block's i dimension
     int b_j; //A block's j dimension
-    int k;
     int M[MAX_V][MAX_V]; //Easiest to implement
 } graph_t;
 

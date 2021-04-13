@@ -24,9 +24,6 @@ graph_t *construct_graph(char *file_name)
     G->num_v = num_v;
     G->b_i = 0; //A block's i dimension
     G->b_j = 0; //A block's j dimension
-    G->k = 0; //What value of k has been calcualated?
-
-    //printf("This graph should have %d vertices\n", num_v);
 
     int tmp, scan;
     for (int i = 0; i < num_v; i++)
