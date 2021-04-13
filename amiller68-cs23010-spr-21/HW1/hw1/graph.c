@@ -90,7 +90,7 @@ int write_result(int n, int t, double time, graph_t *G)
     FILE *fp;
 
     //sprintf(file_name, "res/%d:%d_%s_%f.txt", n, t, (prog + 2), time);
-    sprintf(file_name, "res/%d:%d_%f", n, t, time);
+    sprintf(file_name, "res/%d,%d,%f", n, t, time);
 
     fp = fopen(file_name, "w+");
 

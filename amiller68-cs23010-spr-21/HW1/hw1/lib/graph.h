@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #define MAX_V 4096
-#define MAX_EDGE 10
+#define MAX_EDGE 1000
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 typedef struct graph {
