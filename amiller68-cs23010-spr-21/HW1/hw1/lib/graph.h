@@ -36,17 +36,14 @@ graph_t *construct_graph(char *file_name);
  */
 void print_graph(graph_t *G);
 
-void print_sq(graph_t *G, int i, int j);
 
 /*
  * write_result : writes the contents of an adjacecny matrix to an appropriately
- *                named text file
+ *                named text file <n,t,time>
  *
  * n - number of vertices to include
  *
  * t - how many threads were used
- *
- * prog - a char pointer to the program name
  *
  * time - a double describing a runtime
  *

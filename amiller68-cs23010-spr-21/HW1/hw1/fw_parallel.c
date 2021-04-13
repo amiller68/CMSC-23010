@@ -35,18 +35,12 @@
          return 0;
      }
 
-     //printf("Loaded Graph:\n");
-     //print_graph(G);
-
      startTimer(&sw);
      fw_parallel(G, p);
      stopTimer(&sw);
 
      double time = getElapsedTime(&sw);
-/*
-     printf("Computed Result:\n");
-     print_graph(G);
-*/
+
      write_result(G->num_v, p, time, G);
      free(G);
      return 0;

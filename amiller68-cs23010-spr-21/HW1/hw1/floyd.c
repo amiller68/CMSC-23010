@@ -52,7 +52,6 @@ int fw_parallel(graph_t *G, int p)
 
     b  = (num_v * num_v) / num_t;
 
-    //Maybe error check this
     if (pthread_barrier_init(sync, NULL, num_t) != 0)
     {
         printf("Failed to initialize barrier!");
