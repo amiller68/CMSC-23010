@@ -1,6 +1,6 @@
 \documentclass[]{article}
 %opening
-\title{Design Document}
+\title{Writeup Document}
 \author{Alex Miller}
 \addtolength{\oddsidemargin}{-.875in}
 \addtolength{\evensidemargin}{-.875in}
@@ -13,6 +13,8 @@
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{hyperref}
+\usepackage{graphicx}
+\graphicspath{ {./} }
 \usepackage[ruled,vlined, linesnumbered]{algorithm2e}
 \DontPrintSemicolon
 
@@ -20,84 +22,255 @@
 \begin{document}
 	\maketitle
 	
-	\section{Modules, data structures, interfaces, invariants:}
-	The program will be broken up into two modules, main.c and floyd.c. main.c will describe the following functionality:
+	NEED TO INCLUDE BIT ABOUT no NEGATIVE edge weights
+\section{Changes}
+	\subsection{Changes to the design}
+	My final design ended up including three distinct modules as opposed to the previously proposed two; these included a graph generation module (graph.py), a Floyd-Warshall module (graph.c, floyd.c), as well as a testing module (fw\_serial.c, fw\_parallel.c, test\_script.sh). Describing these pieces in the order in which they are salient:
 	\begin{itemize}
-		\item Take as input:
+		\item graph.py describes a simple python script that randomly generates an adjacency matrix of specified length and stores it in an appropriately named text file. These files are used to test the performance of the functions described in floyd.c. I added this module in order to cut down on the time that I would need to spend making example graphs.
+		\item floyd.c describes serial and parallelized implementations of Floyd-Warshall. We will discuss the changes to this module later. For now just keep in mind that the serial implementation is called fw\_serial and the parallel implementation fw\_parallel. graph.c describes the I/O methods by which preliminary adjacency matrices are loaded into memory and results are written to text files.
+		\item fw\_serial.c describes a simple program that loads an adjacency matrix from a text file, performs an operation of fw\_serial, and writes the result to a text file (the text file name describes the performance of the operation). fw\_parallel.c is similar, but utilizes fw\_parallel (using a specified number of threads) instead. test\_script.sh performs all necessary testing by running the following:
 		\begin{itemize}
-			\item The number of threads to use in the parallelized section of the code; call this value $p$
-			\item A text file representing an adjacency matrix; let it be called $foo.txt$. Integers greater than $1000$ in the adjacency matrix represent the lack of an edge between vertices
+			\item For $n \in$ [16, 32, 64, 128, 256, 512, 1024]:
+			\begin{itemize}
+				\item ./fw\_serial n.txt 1
+				\item For $t \in$ [2, 4, 8, 16, 32, 64]:
+				\begin{itemize}
+					\item ./fw\_parallel n.txt t
+				\end{itemize}
+			\end{itemize}
 		\end{itemize}
-		\item Generate a $graph\_t$ instance that describes $foo.txt$ with the following attributes:
-		\begin{itemize}
-			\item The number of vertices in the adjacency matrix
-			\item A 2D array that describes the adjacency matrix
-		\end{itemize}
-		\item Call this instance $foo$; it is generated with a function $construct\_graph$ that takes $foo.txt$'s FILE pointer as input
-		\item Compute the shortest paths between vertices in $foo$ using $fw\_serial$; the result of this operation is a 2D array that represents shortest path distances between vertices in $foo$. Call this result $res\_serial$. Note the time it takes to generate this result as $serial\_time$. We will discuss this function later.  For the time being understand it as our serial implementation of Floyd-Warshall.
-		\item Compute the shortest paths between vertices in $foo$ using $fw\_parallel$ and $p$ threads; the result of this operation is a 2D array that represents shortest path distances between vertices in $foo$. Call this result $res\_parallel$. Note the time it takes to generate this result as $parallel\_time$. We will discuss this function later. For the time being understand it as our parallelized implementation of Floyd-Warshall.
-		\item If $res\_serial$ and $res\_parallel$ are identical, then we store $res\_parallel$ as a text file named $foo\_res\_<parallel\_time:serial\_time>$
-		\item Otherwise, we raise an error
-		
+		I chose to make this change to my testing structure because my original design tested fw\_serial and fw\_parallel in the same file, which I thought would account for unnecessarily long testing periods; there is no need to retest my serial version every time I want to test my parallel version. Furthermore, putting everything in a bash file made testing easy to do with slurm.The basic logic of my test plan did not change; I verified correctness of each module before moving on the next and checked the results of fw\_parallel using those of fw\_serial
 	\end{itemize}
-	The purpose of $main.c$ is to run convert a text-based adjacency matrix into a form that we can operate with, namely a 2D array. We use this 2D array firstly to compute a shortest path result using a serialized version of Floyd-Warshall, $fw\_serial$. Noting the time and result for testing purposes, we then run $fw\_parallel$. We can assume that $fw\_serial$ gives a the correct shortest path result, since it is sufficiently verifiable. We can therefore use it's output as a justification for accepting the output of $fw\_parallel$.
-	\\
-	The other module, $floyd.c$ describes the datatypes and functions referenced in $main.c$:
+	As per the specific modifications I made to my design of floyd.c: My conception of fw\_serial remained unchanged throughout this process. However, my design for fw\_parallel changed a lot. Our discussion last Tuesday made me realize that by statically partitioning the matrix into equal sized blocks, I could utilize all the threads that I am given access to in a given experiment, rather than being bounded by the number of vertices in a given graph. More correctly, I should say that the new bound of how many threads can be employed for a given graph is the number of indices in its adjacency matrix (the number of vertices squared) rather than the number of vertices in the graph. However, this increase in our ability to utilize thread brought certain drawbacks: 
 	\begin{itemize}
-		\item $graph\_t$
-		\begin{itemize}
-			\item This data type describes a graph in the form of an adjacency matrix
-			\item It contains the following attributes:
-			\begin{itemize}
-				\item $V$: the number of vertices in the graph
-				\item $M$: the adjacency matrix
-			\end{itemize}
-		\end{itemize}
-		\item graph\_t  $construct\_graph(FILE)$
-		\begin{itemize}
-			\item $FILE$ describes a file containing an adjacency matrix
-			\item This function outputs the appropriate representation in a $graph\_t$ instance
-			\item This function should also check whether or not it is taking in a trivial example (a matrix with one element, for example) and raise an error accordingly. Additionally, it should also check for negative cycles in resultant graphs, as these aren't necessarily tolerated under Floyd-Warshall.
-		\end{itemize}
-		\item int[][] $fw\_serial(g)$
-		\begin{itemize}
-			\item $g$ describes a $graph\_t$ instance
-			\item Name a 2D array $res$, which will  eventually contain our shortest path table.
-			\item Initially $res \leftarrow g.V$
-			\item $\forall k, \forall i, \forall j \leq g.V$, compute the following:
-			\begin{itemize}
-				\item If $res[i][j] \leftarrow MIN(res[i][j], res[i][k] +res[k][j])$ 
-			\end{itemize}
-			\item This is sufficient for computing shortest paths within an adjacencey matrix (\href{https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm}{Source}).
-				\item Return $res$
-			\end{itemize}
-			\item int[][] $fw\_parallel(g, p)$
-			\begin{itemize}
-				\item $g$ describes a $graph\_t$ instance
-				\item $p$ is an integer specifying the number of threads to use in computing a result
-				\item Name a 2D array $res$, which will  eventually contain our shortest path table. All threads will have access to this array.
-				\item Initially $res \leftarrow g.V$
-				\item Here, we must note that the serial version of Floyd -Warshall operates by calculating the shortest distnace between all $(i, j)$ pairs for increasing values of $k$. We can say then that while the innner loops of the serialized verion are dependent on the outer-most loop, they themselves are independent of each other. Therefore, this section of the code is ripe for parallelization.
-				\item Therefore, I propose the following parallelized loop structure to compute shortest paths using Floyd-Warshall: $\forall k \leq g.V,$ compute all the shortest path lengths bewtween all $(i, j)$ pairs in parallel. For a single thread, this could look like, for a fixed value of $k', i'$, $\forall j \leq g.V,$ computing $res[i'][j] \leftarrow MIN(res[i'][j], res[i'][k'] +res[k'][j])$. In other words, we should turn the inner for-loop in the serialized version into a parallel for-loop in which a pool of threads computes shortest path lengths bewtween all $(i, j)$ pairs in parallel for a given value of $k$
-				\item As an invariant, we know that we will always have generated the shortest path lengths of all $(i,j)$ pairs for a value of $k$ before we generate such lengths for a value of $k + 1$, maintaining data dependencies within the algorithm.
-				\item The maximum number of threads we can use at one time is equivalent to $g.V$, since each row of the martix needs to operated on independently. These threads will need to be synchronized such that all $(i,j)$ pairs for a given value of $k$ are calculated before moving on to $k + 1$
-				\item Each thread must know the following information in order to operate properly; a pointer to $res$ (the array being operated on), what row it is currently computing in the matrix, as well as for what value of $k$
-			\end{itemize}
-		\end{itemize}
-		
-		
-		\section{Test plan:} 
-		Initially, I will verify that my serial implementation of Floyd-Warshall is correct by reviewing my implementation directly as well as testing trivially small example matricies and verifying results. Considering that the implementation of a serial Floyd-Warshall algorithm is a reasonably reproducable and simple dynamic program, this should be enough to verify correctness.
+		\item Since such blocks aren't guaranteed to be squares, this method would require more overhead in generating the geometry of the partitioning of the matrix. However, the dimensions themselves could be stored in the graph\_t data type I designed before, allowing all threads to know the area of the blocks they are being asked to compute.
 		\\
-		I will then use the validity of my serialized implementation in order to verify results produced by my parallel implementation of Floyd-Warshal. Because my serial implementation is verifiable, I can compare results of $fw\_serial$ and $fw\_parallel$ in order to infer the correctness of $fw\_parallel$. 
-		\\
-		In regards to what examples of adjacency matrix I will use when testing the correctness; Python has a library for creating representations of DiGraphs. I plan on using this library to create a pool of randomly generated graphs. I can use this pool to test my serial and parallel implementations of Floyd-Warshall. Additionally, I plan on hard-coding examples of edge cases as they occur to me while testing; currently I have in mind to hard code a fully connected graph with no negative cycles as well as a graph with only one vertex.
-		
-		
-		\section{Expected Performance (Performance Hypotheses):} 
-		In general I expect both serial and parallel implementation to have similar memory and cache performance since they both iterate through rows in the Matrix; the paralell implementation only does so concurrently.
-		\\
-		My hypothesis is that for graphs with trivial amounts of vertices, the overhead of parallelizing row computations will outweigh the benefits of multiple threads; for example, I expect the serialized implementation to outperform the parallel implementation for a graph with fewer than 32 vertices.
-		\\
-		For larger graphs, I expect the parallel version to experience linear speedup over the serial version by a factor of the number of threads that can be in use at any one time; this is bounded by the number of vertices in a graph (or the number of rows in the adjacency matrix). I expect each utilized thread to demonstrate similar performance, though some may experience more or less writes to the array than others. Therefore I expect to see speedup vary as a function of total number of vertices in a given graph; bigger graphs with more rows can experience greater total speedup because the work can be broken up into more, row-based, components.
-	\end{document}
+		\includegraphics[scale=0.5]{code/graph_t.png}
+		\item Threads would have to know one more information in order to operate; instead of just needing to know what row index they were working on, they would need to know the corner indices from which to begin computing their assigned blocks. 
+		\item If I wanted to synchronize the operation of these threads I would need to pass them all a pointer to a thread barrier
+	\end{itemize}
+	However, by allowing for the use of more threads, it was my thought that I could increase performance, at the very least for larger adjacency matrices where the larger amount of overhead would pay off in improved run times.
+	I maintain the same invariants as before; threads still wait for a the matrix to be computed for a given value of $k$ before computing the matrix for $k + 1$; moreover, the block structure still reflects the independence of the order in which indices are computed. AS stated in my previous document: As an invariant, we know that we will always have generated the shortest path lengths of all $(i,j)$ pairs for a value of $k$ before we generate such lengths for a value of $k + 1$, maintaining data dependencies within the algorithm.
+	\subsection{Changes in hypotheses}
+	I did not implement my past design before attempting my current, so I cannot speak to improvements in performance of one in relation to the other. I maintain the general same hypotheses as I did before, with the following caveats:
+	\begin{itemize}
+		\item I do not expect to see similar cache performance between my serial and parallel implementations of Floyd-Warshall; considering that we are reading my blocks as opposed to rows, there is no reason to think that fw\_serial's cache will look like that of fw\_parallel
+		\item I expect to see minimal speedup, or even slowdown for small graphs with few vertices; the increased overhead of using as many threads as possible should detract from any gains in performance we may see in graphs with 16, 32, or 64 vertices
+		\item For large enough graphs however, I expect to see speedup that is linear in proportion to the amount of threads used.
+	\end{itemize}
+\section{Results}
+	Both fw\_serial and fw\_parallel print their results to a file named "hw1/res/<n>,<p>,<time>" where:
+	\begin{itemize}
+		\item <n> denotes the number of vertices in the graph for which a result was computed
+		\item <p> denotes the number of threads used in computing that result
+		\item <time> the amount of time it took to perform such an operation of fw\_serial or fw\_parallel (depending on which implementation is being tested)
+	\end{itemize}
+	This raw performance data is reflected in a file called "hw1/results.csv". It can also be found (in a nice format with speedup data) in \href{https://docs.google.com/spreadsheets/d/1XrjW1c_qoefwkYxm_nAwCrnQ4Z4TFlYyeFtUYgdvXZE/edit?usp=sharing}{this Google sheet} or "hw1/hw1\_result\_data.pdf"
+ 	The combined data set can be found in a file called "hw1/results.csv."
+
+	The following graphs represent this data as well:
+	\\
+	\includegraphics[scale=0.5]{graphs/16.png}
+	\includegraphics[scale=0.5]{graphs/32.png}
+	\includegraphics[scale=0.5]{graphs/64.png}
+	\includegraphics[scale=0.5]{graphs/128.png}
+	\includegraphics[scale=0.5]{graphs/256.png}
+	\includegraphics[scale=0.5]{graphs/512.png}
+	\includegraphics[scale=0.5]{graphs/1024.png}
+\section{Analysis}
+	As the data shows, my parallel implementation of Floyd-Warshall failed to deliver noticeable improvement over my serial implementation. If anything, the extra overhead of parallelizing Floyd-Warshall seemed to heavily outweigh any potential benefit from having multiple concurrent processes computing results for distinct blocks of vertices.
+	\\
+	That being said, it is notable that for larger graphs with more vertices, my implementation of fw\_parallel did deliver slight speedup. However, this observed speedup did not confirm my hypothesis that for larger graphs, speedup would appear linearly proportional to the number of threads utilized. Rather, for the trials testing performance on graphs containing 512 and 1024 vertices, maximum possible speedup (given my implementation) was achieved using 2 or 4 threads, with drop offs in performances being observed for larger thread counts.
+	\\
+	Overall, I seem supported in my hypothesis that observed speedup would increase with the size of the input space. However, it also seems that I require a new model by which to predict speedup since I did not observe linear speedup. This lack of support for my hypothesis indicates to me that the overhead of managing and utilizing as many threads as possible does not pay off in increased performance necessarily. I do wonder, however, whether or not I would observe something closer to linear speedup if I were to test a large enough input space; though I did not observe linear speedup, the curves of my data display a tendency to flatten for larger input space. Perhaps I might observe something close to linear speedup proportional to the number of threads used for large enough graphs
+	\\
+
+\section{Theory Questions}
+Provide solutions to questions 2, 3, 4, 5, 7, 8, 11, 14, 15, 16.
+
+\subsection{Problem 2}
+\begin{enumerate}
+	\item Liveliness; the good thing that eventually happens is that all patrons will be served
+	\item Safety; the bad thing that never happens is that things float away into the air
+	\item Safety; the bad thing that never happens is that the program gets stuck
+	\item Liveliness; the good thing that eventually happens is that the user is informed of the event
+	\item Liveliness; the good thing that eventually happens is that the user is informed of the event
+	\item Safety; the bad thing that never happens is that the cost of living decreases
+	\item Liveliness; the good thing that eventually happens is that I will die and have to pay taxes 
+	\item Safety; the bad thing that never happens is that I never get snuck up on by a Harvard man.
+\end{enumerate}
+\subsection{Problem 3}
+Alice and Bob set cans up on each other's window sills; each one's can has a string attached to it that the other can use to knock it down.
+Alice does the following:
+\begin{enumerate}
+	\item She waits until the can on her window sill is down.
+	\item She releases the pets.
+	\item When the pets return, Alice checks whether they finished the food. If so, she resets the can on her windowsill and then knocks down the can on Bob's window sill.
+\end{enumerate}
+Bob does the following:
+\begin{enumerate}
+	\item He waits until the can on his window sill is down.
+	\item He puts food in the yard.
+	\item He resets the can on his window sill and knocks down the can on Alice's window sill.
+\end{enumerate}
+\subsection{Problem 4}
+The following assume $P \geq 2$
+In the case that we know the initial state of the switch is off:
+\begin{itemize}
+	\item We designate one of the $P$ prisoners to be the $counter$; the counter maintains an internal count $c$. Initially, $c = 0$.
+	\item When the counter enters the switch room:
+	\begin{itemize}
+		\item If the switch is down, they do nothing and leave
+		\item If the switch is up, the counter increments $c$
+	\end{itemize}
+	\item When $c = P - 1$, the counter may declare that all $P$ prisoners have visited the switch room at least once
+	\item For all other prisoners; when they enter the switch room:
+	\begin{itemize}
+		\item If the switch is down, and they have never flipped the switch before, they should switch it to the "on" position. Otherwise, they should do nothing and leave.
+		\item If the switch is up, they should do nothing and leave.
+	\end{itemize}
+\end{itemize}
+In the case that we don't know the initial state of the switch:
+\begin{itemize}
+	\item We designate one of the $P$ prisoners to be the $counter$; the counter maintains an internal count $c$. Initially, $c = 0$.
+	\item When the counter enters the switch room:
+	\begin{itemize}
+		\item If the switch is down, they do nothing and leave
+		\item If the switch is up, the counter increments $c$
+	\end{itemize}
+	\item When $c = (2 * P) - 1$, the counter may declare that all $P$ prisoners have visited the switch room at least once
+	\item For all other prisoners; when they enter the switch room:
+	\begin{itemize}
+		\item If the switch is down, and they have not flipped the switch more than once, they should switch it to the "on" position. Otherwise, they should do nothing and leave.
+		\item If the switch is up, they should do nothing and leave.
+	\end{itemize}
+\end{itemize}
+\subsection{Problem 5}
+Starting from the back of the line, the first prisoner does the following:
+\begin{itemize}
+	\item If they see an odd number of red hats in front of them, they call out "red!"
+	\item Otherwise, they call out "blue!"
+\end{itemize}
+The next prisoner does the following:
+\begin{itemize}
+	\item If the previous prisoner called out "red!":
+	\begin{itemize}
+		\item If there are an odd number of red hats in front of them, they know they must not be wearing a red hat. They should call out "blue"
+		\item Otherwise, they know they are wearing a red hat. They should call out "red"
+	\end{itemize}
+	\item If the previous prisoner called out "blue!":
+	\begin{itemize}
+		\item If there are an odd number of red hats in front of them, they know they must be wearing a red hat. They should call out "red"
+		\item Otherwise, they know they are wearing a blue hat. They should call out "blue"
+	\end{itemize}
+\end{itemize}
+Likewise, every prisoner following the first can know what hat they are wearing by:
+\begin{enumerate}
+	\item Knowing whether or not there were initially an even number of red hats or not by remembering the first prisoner's answer
+	\item Counting how many red and blue hats were claimed by each prisoner after the first
+	\item Deducing the color of their hat from how many red and blue hats have been claimed (excluding the first prisoner), the initial eveness in the number of red hats, as well as the evenness in the number of red and blue hats in front of them.
+\end{enumerate}
+\subsection{Problem 7}
+$S_n = \frac{1}{1 - p + \frac{p}{n}}$ \\
+$S_2 = \frac{1}{1 - p + \frac{p}{2}}$ \\
+$S_2 = \frac{1}{1 - \frac{p}{2}}$ \\
+$1 - \frac{p}{2} = \frac{1}{S_2}$ \\
+$p = 2 - \frac{2}{S_2}$ \\
+$S_n = \frac{1}{1 - (2 - \frac{2}{S_2}) + \frac{(2 - \frac{2}{S_2})}{n}}$\\
+
+\subsection{Problem 8}
+\begin{itemize}
+	\item Let $proc-a$ denote a uni-processor that executes five instructions per second
+	\item Let $proc-b$ denote a ten processor multi-processor, each core of which executes 1 instruction per second
+	\item Let $P$ be a program we are considering to run on either $proc-a$ or $proc-b$. The fraction of $P$ that is parallelizable is $p$.
+	\item Let $A$ be the time it takes for $proc-a$ to run $P$
+	\item Let $B_i, 0 \leq i \leq 10$ be the time it takes for $proc-b$ to run $P$ using $i$ cores
+	\item $5 * A = B_1$
+	\item $B_{10} = \frac{1}{1 - p + \frac{p}{10}} = \frac{1}{1 - \frac{9p}{10}}$
+	\item Assume that $P$ runs faster on $proc-b$ than $proc-a$ while using all ten cores:
+	\begin{itemize}
+		\item That must mean that $B_{10}$ achieves a speedup ratio of $5$ or more in relation to $B_1$
+		\item Therefore $B_{10} \geq 5$
+		\item $\frac{1}{1 - \frac{9p}{10}} \geq 5$
+		\item $\frac{9p}{10} \geq 1 - \frac{1}{5}$
+		\item $\frac{9p}{10} \geq \frac{4}{5}$
+		\item $9p \geq 8$
+		\item $p \geq \frac{8}{9}$
+	\end{itemize}
+	\item Therefore, if $P$ runs better on $proc-b$ than $proc-a$, it must be that  $p \geq \frac{8}{9}$. 
+	\item Therefore, if $p > \frac{8}{9}$, we should buy $proc-b$, and $proc-a$ if otherwise.
+\end{itemize}
+
+\subsection{Problem 11}
+The protocol satisfies mutual exclusion:
+\begin{itemize}
+	\item Assume that it does not and consider the steps of two threads, $A$ and $B$
+	\item Therefore the following relationships must hold:
+	\begin{enumerate}
+		\item $write_A(turn = A) \rightarrow write_B(turn = B) \rightarrow CS_A$
+		\item $write_B(turn = B) \rightarrow write_A(turn = A) \rightarrow CS_B$
+	\end{enumerate}
+	\item Consider these relationships assuming a specified ordering by which the threads enter the critical section. WLOG,  that $B$ is the last thread to write a value to $turn$ before entering the critical section; therefore
+	\begin{enumerate}
+		\item $write_A(turn = A) \leftarrow write_B(turn = B)$
+	\end{enumerate}
+	If the lock is not mutually exclusive, as we assume it is, this means that $B$ must enter it's critical section before $A$ leaves its. However, $B$ cannot enter its critical section until $A$ leaves its critical section and $write_A(turn = A)$. Therefore $B$ waits for $A$ to leave the $CS_A$ before it enters $CS_B$. Therefore for some $i, j, CS_A^i \rightarrow CS_B^j$
+	\item By contradiction, the lock is mutually exclusive.
+\end{itemize}
+The protocol is not deadlock free. Consider the following execution:
+	$write_A(turn = A) \rightarrow read_A(busy == false) \rightarrow write_A(busy = true)\rightarrow write_B(turn = B)$
+After this point, $busy$ never stops being true, so $B$ never stops setting $turn$ to $B$, so $A$ never exits its outer loop and never enters its critical section
+Because the protocol suffers from deadlock, it also suffers from starvation.
+\subsection{Problem 14}
+Assuming that $n > \l$, we can get the desired behavior out of the existing filter lock design by reducing that sizes of the $level$ and $victim$ arrays from $n$ to $n - (\l - a)$ and reflecting that change in our loop structure so as not not iterate outside the bounds of our (now smaller) data structures. This should be enough.
+\subsection{Problem 15}
+The scientists are wrong in their claim.
+\begin{enumerate}
+	\item Consider the execution of two threads, $A$ and $B$, acquiring the FastPath lock at the same time:
+	\begin{itemize}
+		\item $write_A(x = A) \rightarrow read_A(y == -1) \rightarrow write_A(y = A) \rightarrow read_A(x == B)$
+		\item $write_B(x = B) \rightarrow read_B(y == -1) \rightarrow write_B(y = B) \rightarrow read_B(x == A)$
+	\end{itemize}
+	\item WLOG, assume that $B$ acquires the lock shortly after $A$ and that $write_A(x = A) \rightarrow write_B(x = B)$
+	\item Assuming that $y = -1$ initially, it can happen that $A$ and $B$ both read $y == -1$ before either have the chance to $write_{A or B}(y = A or B)$
+	\item Therefore it is possible for neither thread to wait in the while loop in line 8 of the declaration of FastPath.
+	\item Because $write_A(x = A) \rightarrow write_B(x = B)$, $write_A(x = A) \rightarrow write_B(x = B) \rightarrow read_A(x == B)$; $A$ can proceed to call the base lock(). But because $write_B(x = B) \rightarrow read_B(x == A)$, $B$ never calls the base lock(); instead it just proceeds to $CS_B$.
+	\item Therefore both threads can enter the Critical Section at the same time, because one does not even need to call the base lock in order to proceed past the FastPath wrapper lock. This violates any mutually exclusive property the base Lock may have.
+	\item Therefore it is not the case that our scientists' FastPath wrapper is mutually exclusive and starvation free $\Leftrightarrow$ the base Lock is.
+\end{enumerate}
+\subsection{Problem 16}
+At most one thread gets the value STOP:
+\begin{itemize}
+	\item Consider two threads, $A$ and $B$
+	\item Assume that $A$ returned STOP
+	\item Therefore the ordering $write_A(last = A) \leftarrow read_A(goRight == False)\leftarrow write_A(goRight = True) \leftarrow read_A(last == A)$ occurs
+	\item Assume that $B$ also returns STOP, but after $A$
+	\item If this is the case then $read_A(last == A) \leftarrow write_B(last = B) \leftarrow read_B(goRight == False) \leftarrow write_B(goRight = True) \leftarrow read_B(last == B)$
+	\item However, $read_B(goRight == False)$ never occurs because $goRight$ is set to true by $A$ and is never set to false again anywhere in the program.
+	\item Therefore $B$ would return RIGHT, and not STOP.
+	\item WLOG, assume that thread $B$ is some thread that comes after some thread $A$ which returns STOP. It can't be the case that $B$ also returns STOP, so at most one thread does.
+	\item \textbf{QED}
+\end{itemize}
+At most $n - 1$ threads get the value DOWN.
+\begin{itemize}
+	\item Consider two cases:
+	\begin{enumerate}
+		\item One or more of $n$ threads return RIGHT; the amount of threads that could return DOWN is therefore $n - 1$.
+		\item No threads return RIGHT. If this is the case then $\forall i, j \in [n], read_i(goRight == false) \leftarrow write_j(goRight = true)$. This implies that there was some thread $k$ for which $write_k(last = k)$ occurred after all other $n$ threads. Therefore, if no threads return RIGHT, such a thread $k$ will evaluate $read_k(last == k)$ as $true$, in which case it would return STOP
+	\end{enumerate}
+	\item In either case, at most $n - 1$ threads get the value DOWN
+	\item \textbf{QED}
+\end{itemize}
+At most $n - 1$ threads get the value RIGHT.
+\begin{itemize}
+	\item FSOC, Assume that no thread returns STOP or DOWN
+	\item Therefore $\forall i \in [n], read_i(goRight == true)$
+	\item However, for this to be true, $\exists j \in [n], write_j(goRight = true)$
+	\item Such a thread however would never return RIGHT, as $write_j(goRight = true)$ never proceeds a thread returning RIGHT
+	\item Therefore, for all threads to return RIGHT, some thread must return either STOP or DOWN
+	\item Therefore not every thread can return RIGHT
+	\item Therefore, at most $n - 1$ threads get the value RIGHT
+	\item \textbf{QED}
+\end{itemize}
+\end{document}

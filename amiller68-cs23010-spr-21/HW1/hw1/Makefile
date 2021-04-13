@@ -28,7 +28,10 @@ graph.o: graph.c lib/graph.h
 	$(CC) $(CFLAGS) -c graph.c
 
 clean:
-	rm -f *~ *.o  $(TARGETS)
-	rm tests/*
-	rm res/*
-	rm results.csv
+	- rm -f *~ *.o  $(TARGETS)
+	- rm tests/*
+	- rm res/*
+	- rm exp1/*
+	- rm -r exp2/*
+	- rm -r exp_data/*
+	- rm *results.csv
