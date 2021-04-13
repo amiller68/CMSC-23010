@@ -77,7 +77,7 @@ void print_sq(graph_t *G, int i, int j)
 
 
 /* see lib/graph.h */
-int write_result(int n, int t, char *prog, double time, graph_t *G)
+int write_result(int n, int t, double time, graph_t *G)
 {
     /*
      file_name format:
@@ -89,7 +89,8 @@ int write_result(int n, int t, char *prog, double time, graph_t *G)
     int num_v = G->num_v;
     FILE *fp;
 
-    sprintf(file_name, "res/%d:%d_%s_%f.txt", n, t, (prog + 2), time);
+    //sprintf(file_name, "res/%d:%d_%s_%f.txt", n, t, (prog + 2), time);
+    sprintf(file_name, "res/%d:%d_%f", n, t, time);
 
     fp = fopen(file_name, "w+");
 

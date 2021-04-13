@@ -52,7 +52,7 @@ void print_sq(graph_t *G, int i, int j);
  *
  * returns : 0 on success, 1 on error
  */
- int write_result(int n, int t, char *prog, double time, graph_t *G);
+ int write_result(int n, int t, double time, graph_t *G);
 
 
 #endif

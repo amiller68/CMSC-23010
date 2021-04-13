@@ -47,7 +47,7 @@
      printf("Computed Result:\n");
      print_graph(G);
 */
-     write_result(G->num_v, p, prog_name, time, G);
+     write_result(G->num_v, p, time, G);
      free(G);
      return 0;
  }

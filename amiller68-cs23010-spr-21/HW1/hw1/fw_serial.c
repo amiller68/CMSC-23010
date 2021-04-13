@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 
     double time = getElapsedTime(&sw);
 
-    write_result(G->num_v, p, prog_name, time, G);
+    write_result(G->num_v, p, time, G);
     free(G);
     return 0;
 }
