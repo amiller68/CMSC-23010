@@ -31,3 +31,4 @@ clean:
 	rm -f *~ *.o  $(TARGETS)
 	rm tests/*
 	rm res/*
+	rm results.csv
