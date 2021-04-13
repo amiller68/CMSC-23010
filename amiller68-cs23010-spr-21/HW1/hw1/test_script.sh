@@ -10,6 +10,11 @@ printf "Number of vertices, Number of threads, Run-time, Serial Time\n" >> exp_d
 
 #Create a directory to store our experimental results (exp1)
 mkdir -p exp1
+
+#Initialize directories to hold our immediate tests and results
+mkdir -p res
+mkdir -p tests
+
 for n in $N; do
     #Make a new graph with n vertices
     python3 graph.py $n
