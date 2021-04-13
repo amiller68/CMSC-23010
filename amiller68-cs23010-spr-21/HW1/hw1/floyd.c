@@ -60,6 +60,7 @@ int fw_parallel(graph_t *G, int p)
 
     for (G->b_i = 1, G->b_j = b; G->b_i < G->b_j; G->b_j = G->b_j / 2, G->b_i = G->b_i * 2){}
 
+    //printf("Using B dimension: %d X %d\n", G->b_i, G->b_j);
     ind = 0;
     for(i = 0; i < num_v; i+= G->b_i)
     {
@@ -68,6 +69,7 @@ int fw_parallel(graph_t *G, int p)
             arg = &args[ind];
             thread = &threads[ind];
 
+            //printf("Starting thread: i = %d , j = %d, thread = %ld\n", i, j, threads[ind]);
             arg->i = i; arg->j = j; arg->G = G; arg->sync = sync;
 
             pthread_create(thread, NULL, &compute_block, (void *) arg);
@@ -92,11 +94,12 @@ void *compute_block(void *args)
 
     for (k = 0; k < G->num_v; k++)
     {
-        //printf("Processing sq for k = %d: %ld\n", k, pthread_self());
-        for(; i < (_args->i + G->b_i); i++)
+        //printf("Processing sq for  k = %d: %ld\n", k, pthread_self());
+        for(i = 0; i < (_args->i + G->b_i); i++)
         {
             for(j = 0; j < (_args->j + G->b_j); j++)
             {
+                //printf("Processing sq for i, j, k = %d,%d,%d: %ld\n", i, j, k, pthread_self());
                 tmp = G->M[i][k] + G->M[k][j];
                 if ((G->M[i][j] > tmp) && (tmp < MAX_EDGE))
                 {
@@ -104,7 +107,7 @@ void *compute_block(void *args)
                 }
             }
         }
-        //printf("Waiting on other threads to finish: %ld\n", pthread_self());
+        //printf("Waiting for other threads: %ld\n", pthread_self());
         pthread_barrier_wait(_args->sync);
     }
 

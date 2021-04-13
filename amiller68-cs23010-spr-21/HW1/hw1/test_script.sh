@@ -9,14 +9,18 @@ for n in $N; do
     file_name="tests/${n}.txt"
     printf 'Running serial program : n = %s\n' "$n"
     ./fw_serial $file_name 1
-    s_res_file='find res/ -name "$n,1,*"'
+    s_res_file=$(find res/ -name "$n,1,*")
     for t in $T; do
         printf 'Running parallel program : n = %s | t = %s\n' "$n" "$t"
         ./fw_parallel $file_name $t
-        p_res_file='find res/ -name "$n,$t,*"'
-        if cmp -s "$s_res_file" "$p_res_file"; then
+        p_res_file=$(find res/ -name "$n,$t,*")
+        if cmp -s $s_res_file $p_res_file; then
+            true
+        else
             printf 'SERR: Failed operation <%s:%s>\n' "$n" "$t"
-            rm "$p_res_file"
+            rm $p_res_file
         fi
     done
 done
+
+ls res > results.csv
