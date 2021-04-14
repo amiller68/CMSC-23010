@@ -21,18 +21,29 @@
 
 \begin{document}
 	\maketitle
-	
-	NEED TO INCLUDE BIT ABOUT no NEGATIVE edge weights
+
 \section{Changes}
 	\subsection{Changes to the design}
 	My final design ended up including three distinct modules as opposed to the previously proposed two; these included a graph generation module (graph.py), a Floyd-Warshall module (graph.c, floyd.c), as well as a testing module (fw\_serial.c, fw\_parallel.c, test\_script.sh). Describing these pieces in the order in which they are salient:
 	\begin{itemize}
-		\item graph.py describes a simple python script that randomly generates an adjacency matrix of specified length and stores it in an appropriately named text file. These files are used to test the performance of the functions described in floyd.c. I added this module in order to cut down on the time that I would need to spend making example graphs.
-		\item floyd.c describes serial and parallelized implementations of Floyd-Warshall. We will discuss the changes to this module later. For now just keep in mind that the serial implementation is called fw\_serial and the parallel implementation fw\_parallel. graph.c describes the I/O methods by which preliminary adjacency matrices are loaded into memory and results are written to text files.
-		\item fw\_serial.c describes a simple program that loads an adjacency matrix from a text file, performs an operation of fw\_serial, and writes the result to a text file (the text file name describes the performance of the operation). fw\_parallel.c is similar, but utilizes fw\_parallel (using a specified number of threads) instead. test\_script.sh performs all necessary testing by running the following:
+		\item graph.py describes a simple python script that randomly generates an adjacency matrix of specified length and stores it in an appropriately named text file. These files are used to test the performance of the functions described in floyd.c. I added this module in order to cut down on the time that I would need to spend making example graphs. 
+		
+		It is notable that the adjacency matrix produced by this script don't include negative edge weights. This is on purpose; the presence of negative edges would require me to test input matrices for negative cycles, as Floyd-Warshall only works for graphs without such cycles. I also don't think that the presence of negative edge weights should impact the performance of a Floyd-Warshall implementation, regardless of whether it is parallelized or not. Therefore, rather than choosing to include possibly negative edge weights in my input matrices and having to go through the extra difficulty of testing my randomly generated inputs, I chose to not include negative edges alltogether.
+		
+		\item floyd.c describes serial and parallelized implementations of Floyd-Warshall. We will discuss the changes to this module later. For now just keep in mind that the serial implementation is called fw\_serial and the parallel implementation fw\_parallel. graph.c still describes the I/O methods by which preliminary adjacency matrices are loaded into memory as a graph\_t instance and results are written to text files.
+		\item fw\_serial.c describes a simple program that loads an adjacency matrix from a text file, performs an operation of fw\_serial, and writes the result to a text file. The name of this text file is formatted like a row of a csv file; it has the form $res/<n>,<t>,<time>$ where:
+		\begin{itemize}
+			\item $<n>$: An integer describing how many vertices were in the graph used to generate the result
+			\item $<t>$: An integer describing how many threads were used in computing the result. For all operations of fw\_serial this value is 1. For operations of fw\_parallel it may be 1, 2, 4, 8, 18, 32, or 64
+			\item $<time>$: A float representing how many miliseconds it takes to generate a result. This measurement reflects the time it takes for the methods fw\_serial() or fw\_parallel() (as described in hw1/floyd.c) to return.
+		\end{itemize}	
+		fw\_parallel.c is similar, but utilizes fw\_parallel (using a specified number of threads) instead. 
+		\\
+		test\_script.sh performs all necessary testing by running the following:
 		\begin{itemize}
 			\item For $n \in$ [16, 32, 64, 128, 256, 512, 1024]:
 			\begin{itemize}
+				\item ./fw\_parallel n.txt 1
 				\item ./fw\_serial n.txt 1
 				\item For $t \in$ [2, 4, 8, 16, 32, 64]:
 				\begin{itemize}
@@ -40,44 +51,49 @@
 				\end{itemize}
 			\end{itemize}
 		\end{itemize}
-		I chose to make this change to my testing structure because my original design tested fw\_serial and fw\_parallel in the same file, which I thought would account for unnecessarily long testing periods; there is no need to retest my serial version every time I want to test my parallel version. Furthermore, putting everything in a bash file made testing easy to do with slurm.The basic logic of my test plan did not change; I verified correctness of each module before moving on the next and checked the results of fw\_parallel using those of fw\_serial
+		It takes the results of those tests and arranges them accordingly:
+		\begin{itemize}
+			\item Results from './fw\_serial n.txt 1' are left in the $hw1/res/$ folder, unchanged. The contents of these files are used to verify results of ./fw\_parallel
+			\item Results from './fw\_parallel n.txt 1' are placed in the $hw1/exp1$ folder. Their names are changed to include the run-times of results from './fw\_serial n.txt'. We will discuss how this is done later.
+			\item Results from $./fw\_parallel n.txt t$ are placed in the 'hw1/exp1/t' folder. Their names are changed to include the run-times of results from './fw\_serial n.txt'.  We will discuss how this is done later.
+		\end{itemize}
+		The purpose of this is to make it easy to generate .csv files containing the relevant data for both experiment 1 and 2. These files are compiled and saved in the $hw1/exp\_data$ folder
+
+		I chose to make this change to my testing structure because my original design tested fw\_serial and fw\_parallel in the same file, which I thought would account for unnecessarily long testing periods; there is no need to retest my serial version every time I want to test my parallel version. Using a bash script also made it easy to test these two different executables separately while also keeping track of and organizing result data. Furthermore, putting everything in a bash file made testing easy to do with slurm.The basic logic of my test plan did not change; I verified correctness of each module before moving on the next and checked the results of fw\_parallel using those of fw\_serial
 	\end{itemize}
 	As per the specific modifications I made to my design of floyd.c: My conception of fw\_serial remained unchanged throughout this process. However, my design for fw\_parallel changed a lot. Our discussion last Tuesday made me realize that by statically partitioning the matrix into equal sized blocks, I could utilize all the threads that I am given access to in a given experiment, rather than being bounded by the number of vertices in a given graph. More correctly, I should say that the new bound of how many threads can be employed for a given graph is the number of indices in its adjacency matrix (the number of vertices squared) rather than the number of vertices in the graph. However, this increase in our ability to utilize thread brought certain drawbacks: 
 	\begin{itemize}
 		\item Since such blocks aren't guaranteed to be squares, this method would require more overhead in generating the geometry of the partitioning of the matrix. However, the dimensions themselves could be stored in the graph\_t data type I designed before, allowing all threads to know the area of the blocks they are being asked to compute.
 		\\
 		\includegraphics[scale=0.5]{code/graph_t.png}
-		\item Threads would have to know one more information in order to operate; instead of just needing to know what row index they were working on, they would need to know the corner indices from which to begin computing their assigned blocks. 
-		\item If I wanted to synchronize the operation of these threads I would need to pass them all a pointer to a thread barrier
+		\item Threads would have to know one more piece of information in order to operate; instead of just needing to know what row index they were working on, they would need to know the corner indices from which to begin computing their assigned blocks. 
+		\item Furthermore, If I wanted to synchronize the operation of these threads I would need to pass them all a pointer to a thread barrier
 	\end{itemize}
-	However, by allowing for the use of more threads, it was my thought that I could increase performance, at the very least for larger adjacency matrices where the larger amount of overhead would pay off in improved run times.
-	I maintain the same invariants as before; threads still wait for a the matrix to be computed for a given value of $k$ before computing the matrix for $k + 1$; moreover, the block structure still reflects the independence of the order in which indices are computed. AS stated in my previous document: As an invariant, we know that we will always have generated the shortest path lengths of all $(i,j)$ pairs for a value of $k$ before we generate such lengths for a value of $k + 1$, maintaining data dependencies within the algorithm.
+	However, by allowing for the use of more threads, it was my thought that I could increase performance, at the very least for larger adjacency matrices where the larger amount of overhead of managing many threads would pay off in improved run times.
+	\\\\
+	I maintain the same invariants as before; threads still wait for a the matrix to be computed for a given value of $k$ before computing the matrix for $k + 1$; moreover, the block structure still reflects the independence of the order in which indices are computed. As stated in my previous design document: As an invariant, we know that we will always have generated the shortest path lengths of all $(i,j)$ pairs for a value of $k$ before we generate such lengths for a value of $k + 1$, maintaining data dependencies within the algorithm.
 	\subsection{Changes in hypotheses}
-	I did not implement my past design before attempting my current, so I cannot speak to improvements in performance of one in relation to the other. I maintain the general same hypotheses as I did before, with the following caveats:
+	I did not implement my past design before attempting my current, so I cannot speak to improvements in performance of one in relation to the other. I maintain, in general, same hypotheses as I did before, with the following caveats:
 	\begin{itemize}
 		\item I do not expect to see similar cache performance between my serial and parallel implementations of Floyd-Warshall; considering that we are reading my blocks as opposed to rows, there is no reason to think that fw\_serial's cache will look like that of fw\_parallel
-		\item I expect to see minimal speedup, or even slowdown for small graphs with few vertices; the increased overhead of using as many threads as possible should detract from any gains in performance we may see in graphs with 16, 32, or 64 vertices
-		\item For large enough graphs however, I expect to see speedup that is linear in proportion to the amount of threads used.
+		\item I expect to see minimal speedup, or even slowdown for small graphs with few vertices; the increased overhead of using as many threads as possible should detract from any gains in performance for sufficiently small input spaces. However, we may see gains in performance for graphs with 16, 32, or 64 vertices
+		\item For large enough graphs, I expect to see speedup that is linear in proportion to the amount of threads used, and not bounded by the number of threads that can be used at any one time.
 	\end{itemize}
 \section{Results}
-	Both fw\_serial and fw\_parallel print their results to a file named "hw1/res/<n>,<p>,<time>" where:
+	The performance data for experiments 1 and 2 is stored in a folder called $hw1/exp\_data$. This folder contains the .csv files that describe performance data for a given experiment. More specifically, they describe how fw\_serial compares to fw\_parallel in terms of run time. The columns of these files are:
 	\begin{itemize}
-		\item <n> denotes the number of vertices in the graph for which a result was computed
-		\item <p> denotes the number of threads used in computing that result
-		\item <time> the amount of time it took to perform such an operation of fw\_serial or fw\_parallel (depending on which implementation is being tested)
+		\item Number of vertices : How many vertices did the graph for which a result was computed contain?
+		\item Number of threads : How many threads were used by fw\_parallel to compute this result?
+		\item Run-time : How long did it take fw\_parallel to generate this result
+		\item Serial Time : How long did it take fw\_serial to generate the same result for the same graph?
 	\end{itemize}
-	This raw performance data is reflected in a file called "hw1/results.csv". It can also be found (in a nice format with speedup data) in \href{https://docs.google.com/spreadsheets/d/1XrjW1c_qoefwkYxm_nAwCrnQ4Z4TFlYyeFtUYgdvXZE/edit?usp=sharing}{this Google sheet} or "hw1/hw1\_result\_data.pdf"
- 	The combined data set can be found in a file called "hw1/results.csv."
+	I took this data and plotted it using Google sheets. This file can be found \href{https://docs.google.com/spreadsheets/d/1XrjW1c_qoefwkYxm_nAwCrnQ4Z4TFlYyeFtUYgdvXZE/edit?usp=sharing}{here}.
 
 	The following graphs represent this data as well:
 	\\
-	\includegraphics[scale=0.5]{graphs/16.png}
-	\includegraphics[scale=0.5]{graphs/32.png}
-	\includegraphics[scale=0.5]{graphs/64.png}
-	\includegraphics[scale=0.5]{graphs/128.png}
-	\includegraphics[scale=0.5]{graphs/256.png}
-	\includegraphics[scale=0.5]{graphs/512.png}
-	\includegraphics[scale=0.5]{graphs/1024.png}
+	
+	%\includegraphics[scale=0.5]{graphs/16.png}%
+
 \section{Analysis}
 	As the data shows, my parallel implementation of Floyd-Warshall failed to deliver noticeable improvement over my serial implementation. If anything, the extra overhead of parallelizing Floyd-Warshall seemed to heavily outweigh any potential benefit from having multiple concurrent processes computing results for distinct blocks of vertices.
 	\\

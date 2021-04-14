@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.1.23)  13 APR 2021 15:18
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.1.23)  13 APR 2021 20:39
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -379,102 +379,60 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 24.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
-<code/graph_t.png, id=68, 596.2275pt x 190.7125pt>
-File: code/graph_t.png Graphic file (type png)
-<use code/graph_t.png>
-Package pdftex.def Info: code/graph_t.png  used on input line 49.
-(pdftex.def)             Requested size: 298.11302pt x 95.356pt.
- [1
+) [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-<graphs/16.png, id=84, 602.25pt x 372.39125pt>
-File: graphs/16.png Graphic file (type png)
-<use graphs/16.png>
-Package pdftex.def Info: graphs/16.png  used on input line 74.
-(pdftex.def)             Requested size: 301.12425pt x 186.19516pt.
-<graphs/32.png, id=85, 602.25pt x 372.39125pt>
-File: graphs/32.png Graphic file (type png)
-<use graphs/32.png>
-Package pdftex.def Info: graphs/32.png  used on input line 75.
-(pdftex.def)             Requested size: 301.12425pt x 186.19516pt.
-<graphs/64.png, id=86, 602.25pt x 372.39125pt>
-File: graphs/64.png Graphic file (type png)
-<use graphs/64.png>
-Package pdftex.def Info: graphs/64.png  used on input line 76.
-(pdftex.def)             Requested size: 301.12425pt x 186.19516pt.
-<graphs/128.png, id=87, 602.25pt x 372.39125pt>
-File: graphs/128.png Graphic file (type png)
-<use graphs/128.png>
-Package pdftex.def Info: graphs/128.png  used on input line 77.
-(pdftex.def)             Requested size: 301.12425pt x 186.19516pt.
-<graphs/256.png, id=88, 602.25pt x 372.39125pt>
-File: graphs/256.png Graphic file (type png)
-<use graphs/256.png>
-Package pdftex.def Info: graphs/256.png  used on input line 78.
-(pdftex.def)             Requested size: 301.12425pt x 186.19516pt.
-<graphs/512.png, id=89, 602.25pt x 372.39125pt>
-File: graphs/512.png Graphic file (type png)
-<use graphs/512.png>
-Package pdftex.def Info: graphs/512.png  used on input line 79.
-(pdftex.def)             Requested size: 301.12425pt x 186.19516pt.
-<graphs/1024.png, id=90, 602.25pt x 372.39125pt>
-File: graphs/1024.png Graphic file (type png)
-<use graphs/1024.png>
-Package pdftex.def Info: graphs/1024.png  used on input line 80.
-(pdftex.def)             Requested size: 301.12425pt x 186.19516pt.
+<code/graph_t.png, id=81, 596.2275pt x 190.7125pt>
+File: code/graph_t.png Graphic file (type png)
+<use code/graph_t.png>
+Package pdftex.def Info: code/graph_t.png  used on input line 68.
+(pdftex.def)             Requested size: 298.11302pt x 95.356pt.
 
-Overfull \hbox (132.99823pt too wide) in paragraph at lines 72--81
-[] []
- []
-
-
-Overfull \hbox (132.99823pt too wide) in paragraph at lines 72--81
-[] []
- []
-
-
-Overfull \hbox (132.99823pt too wide) in paragraph at lines 72--81
-[] []
- []
-
-[2 <./code/graph_t.png>] [3 <./graphs/16.png> <./graphs/32.png> <./graphs/64.pn
-g> <./graphs/128.png> <./graphs/256.png> <./graphs/512.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 82--88
+Underfull \hbox (badness 10000) in paragraph at lines 72--75
 
  []
 
-[4 <./graphs/1024.png>] [5]
-Underfull \hbox (badness 10000) in paragraph at lines 175--181
+[2 <./code/graph_t.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 92--94
 
  []
 
-[6]
 
-LaTeX Warning: Command \l invalid in math mode on input line 226.
+Underfull \hbox (badness 10000) in paragraph at lines 98--104
+
+ []
+
+[3] [4]
+Underfull \hbox (badness 10000) in paragraph at lines 191--197
+
+ []
+
+[5]
+
+LaTeX Warning: Command \l invalid in math mode on input line 242.
 
 
-LaTeX Warning: Command \l invalid in math mode on input line 226.
+LaTeX Warning: Command \l invalid in math mode on input line 242.
 
-[7] [8]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 276.
- [9]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 276.
+[6] [7]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 292.
+ [8]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 292.
  (./amiller68_writeup.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 276.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 276.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 292.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 292.
 Package rerunfilecheck Info: File `amiller68_writeup.out' has not changed.
 (rerunfilecheck)             Checksum: C135B807500C236ACF17919A184B0FF3;884.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 276.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 292.
  ) 
 Here is how much of TeX's memory you used:
- 7433 strings out of 483107
- 110290 string characters out of 5964630
+ 7389 strings out of 483107
+ 109617 string characters out of 5964630
  376789 words of memory out of 5000000
- 22266 multiletter control sequences out of 15000+600000
+ 22231 multiletter control sequences out of 15000+600000
  540536 words of font info for 56 fonts, out of 8000000 for 9000
  59 hyphenation exceptions out of 8191
- 34i,6n,31p,814b,435s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 34i,6n,31p,814b,452s stack positions out of 5000i,500n,10000p,200000b,80000s
  </home/alex/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600p
 k></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/shar
@@ -488,10 +446,10 @@ msfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
 cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy1
 0.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb><
 /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb>
-Output written on amiller68_writeup.pdf (9 pages, 277954 bytes).
+Output written on amiller68_writeup.pdf (8 pages, 180997 bytes).
 PDF statistics:
- 231 PDF objects out of 1000 (max. 8388607)
- 186 compressed objects within 2 object streams
- 55 named destinations out of 1000 (max. 500000)
- 169 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 212 PDF objects out of 1000 (max. 8388607)
+ 182 compressed objects within 2 object streams
+ 54 named destinations out of 1000 (max. 500000)
+ 134 words of extra memory for PDF output out of 10000 (max. 10000000)
 
