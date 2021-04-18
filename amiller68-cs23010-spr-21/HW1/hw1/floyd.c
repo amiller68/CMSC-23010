@@ -94,9 +94,9 @@ void *compute_block(void *args)
     for (k = 0; k < G->num_v; k++)
     {
         //printf("Processing sq for  k = %d: %ld\n", k, pthread_self());
-        for(i = 0; i < (_args->i + G->b_i); i++)
+        for(j = 0; j < (_args->j + G->b_j); j++)
         {
-            for(j = 0; j < (_args->j + G->b_j); j++)
+            for(i = 0; i < (_args->i + G->b_i); i++)
             {
                 //printf("Processing sq for i, j, k = %d,%d,%d: %ld\n", i, j, k, pthread_self());
                 tmp = G->M[i][k] + G->M[k][j];
