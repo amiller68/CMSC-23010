@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.1.23)  18 APR 2021 17:07
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.1.23)  20 APR 2021 12:00
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -337,34 +337,70 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 22.
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 32.
- [1
+Overfull \hbox (3.39993pt too wide) in paragraph at lines 42--43
+[]\OT1/cmr/m/n/10 Using user in-put, they will cre-ate the spec-i-fied packet g
+en-er-a-tor. Call this gen-er-a-tor $\OML/cmm/m/it/10 packet[]gen$\OT1/cmr/m/n/
+10 .
+ []
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 32.
+[1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2]
+Underfull \hbox (badness 10000) in paragraph at lines 122--127
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 122--127
+
+ []
+
+[3]
+Underfull \hbox (badness 10000) in paragraph at lines 135--138
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 139--142
+
+ []
+
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 147.
+
+Underfull \hbox (badness 10000) in paragraph at lines 144--147
+
+ []
+
+[4] [5]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 147.
  (./amiller68_design.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 32.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 32.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 147.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 147.
 Package rerunfilecheck Info: File `amiller68_design.out' has not changed.
-(rerunfilecheck)             Checksum: C091A9EE9328F45388B0DBC8CEE49C42;215.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 32.
+(rerunfilecheck)             Checksum: 9277FC3207880C22F37D0F809A7ABED5;576.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 147.
  ) 
 Here is how much of TeX's memory you used:
- 6547 strings out of 483107
- 98316 string characters out of 5964630
- 357548 words of memory out of 5000000
- 21474 multiletter control sequences out of 15000+600000
- 537887 words of font info for 45 fonts, out of 8000000 for 9000
+ 6590 strings out of 483107
+ 98753 string characters out of 5964630
+ 366548 words of memory out of 5000000
+ 21494 multiletter control sequences out of 15000+600000
+ 540536 words of font info for 56 fonts, out of 8000000 for 9000
  59 hyphenation exceptions out of 8191
- 34i,6n,31p,315b,313s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></us
-r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share
-/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texliv
-e/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb>
-Output written on amiller68_design.pdf (1 page, 39714 bytes).
+ 34i,6n,31p,718b,440s stack positions out of 5000i,500n,10000p,200000b,80000s
+ </home/alex/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600p
+k></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></us
+r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/shar
+e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmsy10.pfb>
+Output written on amiller68_design.pdf (5 pages, 111412 bytes).
 PDF statistics:
- 42 PDF objects out of 1000 (max. 8388607)
- 34 compressed objects within 1 object stream
- 5 named destinations out of 1000 (max. 500000)
- 25 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 115 PDF objects out of 1000 (max. 8388607)
+ 96 compressed objects within 1 object stream
+ 24 named destinations out of 1000 (max. 500000)
+ 65 words of extra memory for PDF output out of 10000 (max. 10000000)
 
