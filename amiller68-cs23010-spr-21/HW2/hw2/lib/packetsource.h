@@ -9,6 +9,8 @@ typedef  struct {
 }Packet_t;
 
 typedef struct {
+	long mean;
+
 	UniformGenerator_t  * uniformGen;
 	UniformGenerator_t  * uniformSeed;
 	long  * uniformCounts;
@@ -19,6 +21,8 @@ typedef struct {
 }PacketSource_t;
 
 PacketSource_t * createPacketSource(long mean, int numSources, short seed);
+
+volatile Packet_t *getConstantPacket(PacketSource_t * packetSource, int sourceNum);
 
 volatile Packet_t * getUniformPacket(PacketSource_t * packetSource, int soruceNum);
 long getUniformCount(PacketSource_t * packetSource, int soruceNum);

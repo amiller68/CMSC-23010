@@ -1,8 +1,10 @@
-#include "packetsource.h"
+#include "lib/packetsource.h"
 
 PacketSource_t * createPacketSource(long mean, int numSources, short seed) {
 
 	PacketSource_t * packetSource = (PacketSource_t *)malloc(sizeof(PacketSource_t));
+
+	packetSource->mean = mean;
 
 	packetSource->uniformGen = (UniformGenerator_t *)malloc(sizeof(UniformGenerator_t) * numSources);
 	packetSource->uniformSeed = (UniformGenerator_t *)malloc(sizeof(UniformGenerator_t) * numSources);
@@ -67,6 +69,12 @@ void deletePacketSource(PacketSource_t * packetSource)
 	free(packetSource->exponentialCounts);
 
     free(packetSource);
+}
+volatile Packet_t *getConstantPacket(PacketSource_t * packetSource, int sourceNum){
+	volatile Packet_t * tmp = (volatile Packet_t *)malloc(sizeof(volatile Packet_t));
+	tmp->iterations =  packetSource->mean;
+	tmp->seed = sourceNum / sourceNum;
+	return tmp;
 }
 volatile Packet_t * getUniformPacket(PacketSource_t * packetSource, int sourceNum){
 	volatile Packet_t * tmp = (volatile Packet_t *)malloc(sizeof(volatile Packet_t));

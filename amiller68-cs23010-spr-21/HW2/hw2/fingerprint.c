@@ -5,7 +5,7 @@
  *      Author: lamont
  */
 
-#include "fingerprint.h"
+#include "lib/fingerprint.h"
 
 const long m = (long) 0xFFFFFFFFFFFFL;
 const long a = 25214903917L;

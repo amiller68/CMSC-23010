@@ -23,6 +23,51 @@
 
 \section{Changes}
 \subsection{Changes to the design}
+The following addresses changes I have made to my projects design, broken down by module:
+\begin{itemize}
+	\item Top level modules (serial.c, parallel.c, serial-queue.c)
+	\begin{itemize}
+		\item These files will still take in the same inputs. Moreover, they ways in which they are called and incorporated into the deriving experimental results is functionally the same.
+		\item However, these files will no longer utilize a 2D array in which to store verifiable experimental results. Instead, worker threads called in these files will individually maintain counters. These counters will be computed by adding up the values of checksums derived by the worker thread. The results of these counters will then be added together and written to the appropriately named file, instead of the checksums themselves (as specified in our previous design). We can use the results of these counters in order to compare the results of parallel, serial, and serial-queue implementations using the same number of sources and packets and the same seed. 
+		\\\\
+		We can say that our implementations are consistent if they generate the same final counter value. This isn't necessarily proof that they produced equivalent checksums, in the sense that different implementations' computation of a common counter value could occur with widely varied checksum values. Strictly speaking, this method of verification is more dubious than our previous design, in the sense that our previous design inferred correctness from actual output (that is otherwise lost in our program) while out current design infers correctness indirectly. However, the odds of a false positive verification is low, considering that checksums are expressed as $longs$, and there are on the order of $2^{64}$ distinct values that final counters could take (accounting for overflow).
+		\\\\
+		The purpose of this is to minimize the amount of time in the critical section spent writing to memory; of course, this method still requires reading and writing memory. However, by having each thread operate on a single memory location, rather than O(T) total locations, we can minimize cache misses and get a clearer picture of performance.
+		\item Additionally, serial\_queue.c will no longer reference chksum\_parallel(). Instead it will utilize chksum\_serial\_queue(), details on this new function to follow. This change is due to the necessity of generating and dispatching packets in a round-robin manner, and the added run-times associated with called pthread\_create(). These factors complicate the re-use of the steps outlined chksum\_parallel(), but with only one thread, for the purposes of testing serial\_queue.c. So instead, chksum\_serial\_queue() will utilize the same basic structure and data structures of chksum\_parallel(), but utilize a framework more suited to a single worker thread. This will give us a better idea of how the dispatcher is operating.
+	\end{itemize}
+	\item Algorithm implementation level (chksum.c)
+	\begin{itemize}
+		\item First off, as our use of a 2D array in which to store results is deprecated, methods described in these files won't reference $res$ anymore. Instead, they will use the values of checksums they generate in order to arrive at an amalgamated checksum value.
+		\item Secondly, we must alter our design of our dispatcher, as specified in the method chksum\_parallel.c(). Initially, we described a loop structure in which the dispatcher generates packets for a source until it's worker thread's queue is full, before moving on to populate the queue of another worker thread. This does not implement a "round-robin" loop structure, as required by the assignment. Moreover, this does actually simulate real-world use of our firewall, as packets from various sources would be arriving at our dispatcher simultaneously.
+		\\\\
+		Instead, for a given worker thread, the dispatcher will wait until its queue contains space for another packet, write to the thread's associated queue, and then move on to the next worker thread. It will repeat this process $T$ times, or as long as there are packets to dispatch to worker threads.
+		\item Thirdly, as mentioned above, serial.c will utilize a new method, chksum\_serial\_queue(). This method will be defined in the chksum.c module.
+		\\\\
+		The key distinction between chksum\_serial\_queue() and chksum\_parallel() is that rather than multiple threads maintaining single queues, a single thread will cycle through and all the queues.
+	\end{itemize}
+	\item Queue data structure (queue.c)
+	\begin{itemize}
+		\item My $queue_t$, now known as $packet_queue_t$ declaration now defines the following struct members and methods:
+		\begin{itemize}
+			\item $head, tail$ : Volatile integers specifying the locations of the head and tail of the queue
+			\item $packets$ : a Lamport queue with depth $D$
+			\item $done$ : a boolean designating whether or not we should keep
+			reading from $Q$. This is initially set to $false$
+			\item $final_count$ : As described above, each worker thread generates a combined checksum value. This value is incremented by this value every time its associated worker generates said variable.
+		\end{itemize}
+		\item Methods:
+		\begin{itemize}
+			\item $enq(Packet_t x)$ : queue a $Packet_t$ instance in the Queue. Return an error code if the queue is full.
+			\item $deq()$ : dequeue the next $Packet_t$ from $Q$. Return a NULL value if the queue is empty
+			\item $new\_packet\_queue()/destroy\_packet\_queue()$ : initialization/destruction methods
+		\end{itemize}
+	\end{itemize}
+		\item My original design did not account for necessary volatile variables, and it included variables.
+		
+\end{itemize}
+
+\subsection{Changes to Test plan:}
+Instead of relying on an "absence of compile errors and the verifiable correctness of results" to infer the correctness of my $queue\_t$ implementation, I will test the performance of queue explicitly. I will do this by testing the performance of a $queue\_t$ against important edge cases; two that come to mind are the cases in which a writer is adding to a queue faster than a reader can extract values and the inverse, a reader extracting values from the queue faster than a writer can add to it. This behavior can be enforced through the use of the $sleep()$ method in C. Under these tests, we will take an absence of queue corruption to imply correctness of implementation.
 
 \subsection{Changes in hypotheses}
 

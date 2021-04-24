@@ -1,5 +1,5 @@
 
-#include "generators.h"
+#include "lib/generators.h"
 #include <math.h>
 const char * randomString = "This is going to be my randomization string";
 const unsigned int randomStringSize = 43;
@@ -25,5 +25,3 @@ long genExponentialRand(ExponentialGenerator_t * eGen){
     tmpCDF = tmpCDF / 4294967295.0; //0xFFFFFFFF in decimal
     return (long)ceil(-eGen->mean*log(1.0-tmpCDF));
 }
-
-
