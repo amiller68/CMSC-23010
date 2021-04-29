@@ -41,9 +41,11 @@ The following addresses changes I have made to my projects design, broken down b
 		\item Secondly, we must alter our design of our dispatcher, as specified in the method chksum\_parallel.c(). Initially, we described a loop structure in which the dispatcher generates packets for a source until it's worker thread's queue is full, before moving on to populate the queue of another worker thread. This does not implement a "round-robin" loop structure, as required by the assignment. Moreover, this does actually simulate real-world use of our firewall, as packets from various sources would be arriving at our dispatcher simultaneously.
 		\\\\
 		Instead, for a given worker thread, the dispatcher will wait until its queue contains space for another packet, write to the thread's associated queue, and then move on to the next worker thread. It will repeat this process $T$ times, or as long as there are packets to dispatch to worker threads.
-		\item Thirdly, as mentioned above, serial.c will utilize a new method, chksum\_serial\_queue(). This method will be defined in the chksum.c module.
+		\item Thirdly, as mentioned above, serial\_queue.c will utilize a new method, chksum\_serial\_queue(). This method will be defined in the chksum.c module.
 		\\\\
-		The key distinction between chksum\_serial\_queue() and chksum\_parallel() is that rather than multiple threads maintaining single queues, a single thread will cycle through and all the queues.
+		The key distinction between chksum\_serial\_queue() and chksum\_parallel() is that rather than multiple threads maintaining single queues, a single thread will cycle through all the queues, dequeing packets and calculating checksums in the same order that the dispatcher places packets into the queues. Because of this, the single worker thread does not utilize the $done$ field of its $packet\_queue\_t$ structs, but instead exits once it has processed $T$ packets from $N - 1$ sources.
+		\\\\
+		This requires the use of a new data structure in order to pass the values of $N$ and $T$ to the single thread. The impact of this structure on performance is negligible, considering that is relatively small (the struct contains a pointer to a pool of $packet\_queue\_t$ instances, as well as two integers to hold the values of $N$ and $T$) and is only passed to one thread.
 	\end{itemize}
 	\item Queue data structure (queue.c)
 	\begin{itemize}
@@ -51,19 +53,24 @@ The following addresses changes I have made to my projects design, broken down b
 		\begin{itemize}
 			\item $head, tail$ : Volatile integers specifying the locations of the head and tail of the queue
 			\item $packets$ : a Lamport queue with depth $D$
-			\item $done$ : a boolean designating whether or not we should keep
+			\item $done$ : a Volatile boolean designating whether or not we should keep
 			reading from $Q$. This is initially set to $false$
-			\item $final_count$ : As described above, each worker thread generates a combined checksum value. This value is incremented by this value every time its associated worker generates said variable.
+			\item $final\_count$ : As described above, each worker thread generates a combined checksum value. This value is incremented by this value every time its associated worker generates said variable.
 		\end{itemize}
 		\item Methods:
 		\begin{itemize}
 			\item $enq(Packet_t x)$ : queue a $Packet_t$ instance in the Queue. Return an error code if the queue is full.
 			\item $deq()$ : dequeue the next $Packet_t$ from $Q$. Return a NULL value if the queue is empty
-			\item $new\_packet\_queue()/destroy\_packet\_queue()$ : initialization/destruction methods
+			\item $create\_queue\_pool()/destroy\_queue\_pool()$ : initialization/destruction methods for a block of queues
 		\end{itemize}
 	\end{itemize}
-		\item My original design did not account for necessary volatile variables, and it included variables.
-		
+	\item Testing script (test\_script.sh)
+	\begin{itemize}
+		\item Here, I would like less to discuss a change, so much as discuss a design choice that arose in the writing my testing script; the assignment specifies that we should generate our plots using median data from our experiments. This can take be done in two ways. The first involves generating median speedup data by choosing median data points for all trials of a given test. The second involves calculating speedup for all trials, and taking the median value as a data point. My implementation opted for the latter option.
+		\\\\
+		This choice entails two advantages. Primarily, it reduces the necessary complexity of my testing script; rather than having to keep track of, store, and operate on multiple data points for a single test, I can collapse that information into a single data point per test. This makes reasoning about the data in an excel spreadsheet much easier. Secondly, this method has the added bonus of associating tests within a given trial, rather than comparing runtimes for trials that may utilize wildly different data sets.
+	\end{itemize}
+	\item These changes remain consistent with my previously stated invariants
 \end{itemize}
 
 \subsection{Changes to Test plan:}
@@ -78,6 +85,16 @@ Instead of relying on an "absence of compile errors and the verifiable correctne
 
 \section{Theory Questions}
 Book problems 25, 29, 30, 31, 32
+
+\subsection{Problem 25}
+
+\subsection{Problem 29}
+
+\subsection{Problem 30}
+
+\subsection{Problem 31}
+
+\subsection{Problem 32}
 	
 	
 \end{document}

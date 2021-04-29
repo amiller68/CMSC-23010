@@ -48,3 +48,4 @@ generators.o: generators.c lib/generators.h
 clean:
 	- rm -f *~ *.o  $(TARGETS)
 	- rm res/*
+	- rm -r exp_data

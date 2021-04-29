@@ -4,8 +4,6 @@
 #include "lib/chksum.h"
 #include "lib/stopwatch.h"
 
-int write_result(long count, int N, int T, long W, short s, double time);
-
 /*
  * serial.c - generate the checksums for T packets originating from N - 1 sources
  *
@@ -34,9 +32,10 @@ int main(int argc, char *argv[])
     int N = atoi(argv[1]);
     int T = atoi(argv[2]);
     int W = atoi(argv[3]);
-    //int D = atoi(argv[4]);
-    short s = atol(argv[5]);
+    int D = atoi(argv[4]);
+    short s = atoi(argv[5]);
     char opt = *argv[6];
+
     volatile Packet_t * (*packet_method)(PacketSource_t *, int);
     switch(opt)
     {
@@ -54,44 +53,21 @@ int main(int argc, char *argv[])
             return 1;
     }
 
+
+    //printf("Options intialized...\n");
+
     StopWatch_t sw;
-
+    long final_count = 0;
+    //printf("Making packet source...\n");
     PacketSource_t *packet_source = createPacketSource(W, N - 1, s);
-
+    //printf("Running test...\n");
     startTimer(&sw);
-    long final_count = chksum_serial(packet_source, packet_method, N - 1, T);
+    final_count = chksum_serial(packet_source, packet_method, N - 1, T);
     stopTimer(&sw);
-
+    //printf("Measuring the result...\n");
     double time = getElapsedTime(&sw);
-
-    write_result(final_count, N, T, W, s, time);
+    //printf("Writing result...\n");
+    write_result(final_count, N, T, W, D, s, opt, time);
     deletePacketSource(packet_source);
-    return 0;
-}
-
-int write_result(long count, int N, int T, long W, short s, double time)
-{
-    /*
-     file_name format:
-        <n>,<T>,<W>,<s>,<time>
-    */
-
-    char file_name[100];
-    char long_buff[20];
-    FILE *fp;
-
-    sprintf(file_name, "res/%d,%d,%ld,%d,%f", N, T, W, s, time);
-
-    fp = fopen(file_name, "w+");
-
-    if(!fp)
-    {
-        printf("No such file: %s", file_name);
-        return 1;
-    }
-
-    sprintf(long_buff, "Checksum: %ld\n", count);
-    fputs(long_buff, fp);
-    fclose(fp);
     return 0;
 }

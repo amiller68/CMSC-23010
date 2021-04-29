@@ -27,6 +27,7 @@ packet_queue_t *new_packet_queue(int D)
     Q->packets = packets;
     Q->tail = 0;
     Q->head = 0;
+    Q->D = D;
     Q->done = false;
     Q->final_count = 0;
 
@@ -44,8 +45,6 @@ packet_queue_t *create_queue_pool(int num_q, int D)
         return NULL;
     }
 
-    //Block allocate space for our packet queues
-    //I want num_q arrays of size D to Packet_t pointers
     volatile Packet_t **packets = (volatile Packet_t **) malloc(num_q * D * sizeof(volatile Packet_t *));
 
     if (!packets)
@@ -60,12 +59,21 @@ packet_queue_t *create_queue_pool(int num_q, int D)
         Q_pool[i].packets = packets + (i * D);
         Q_pool[i].tail = 0;
         Q_pool[i].head = 0;
+        Q_pool[i].D = D;
         Q_pool[i].done = false;
         Q_pool[i].final_count = 0;
     }
 
     return Q_pool;
 }
+
+int destroy_queue_pool(packet_queue_t * Q_pool)
+{
+    free(Q_pool[0].packets);
+    free(Q_pool);
+    return 0;
+}
+
 
 int destroy_packet_queue(packet_queue_t *Q)
 {
@@ -82,23 +90,30 @@ int destroy_packet_queue(packet_queue_t *Q)
 
 int enq(packet_queue_t *Q, volatile Packet_t *packet)
 {
-    if (Q->tail - Q->head == sizeof(Q->packets))
+    if (Q->tail - Q->head == Q->D)
     {
         return 1;
     }
 
-    Q->packets[Q->tail % sizeof(Q->packets)] = packet;
+    Q->packets[Q->tail % Q->D] = packet;
+
+    __sync_synchronize();
+
     Q->tail++;
     return 0;
 }
 
 volatile Packet_t *deq(packet_queue_t *Q)
 {
+    volatile Packet_t *packet;
     if (Q->tail - Q->head == 0)
     {
         return NULL;
     }
+    packet = Q->packets[Q->head % Q->D];
+
+    __sync_synchronize();
 
     Q->head++;
-    return Q->packets[Q->head % sizeof(Q->packets)];
+    return packet;
 }
