@@ -11,7 +11,7 @@ W="200 400 800"
 N="2 9 14"
 D="32"
 opt="u"
-num_trials=1
+num_trials=7
 
 echo "Running exp 1..."
 
@@ -85,7 +85,7 @@ W=1
 N="2 3 5 9 14 28"
 D="32"
 opt="u"
-num_trials=1
+num_trials=7
 
 #Header for our exp2 data
 printf "N, T, W, D, ratio\n" >> exp_data/exp2.csv
@@ -151,7 +151,7 @@ W="1000 2000 4000 8000"
 N="2 3 5 9 14 28"
 D="32"
 opt="c"
-num_trials=1
+num_trials=7
 
 echo "Running exp 3..."
 #Header for our exp3 data
@@ -208,7 +208,7 @@ W="1000 2000 4000 8000"
 N="2 3 5 9 14 28"
 D="32"
 opt="u"
-num_trials=1
+num_trials=7
 
 echo "Running exp 4..."
 #Header for our exp1_n data
@@ -265,7 +265,7 @@ W="1000 2000 4000 8000"
 N="2 3 5 9 14 28"
 D="32"
 opt="e"
-num_trials=1
+num_trials=13
 
 echo "Running exp 5..."
 #Header for our exp1_n data
