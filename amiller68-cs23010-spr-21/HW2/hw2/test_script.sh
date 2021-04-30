@@ -11,17 +11,22 @@ W="200 400 800"
 N="2 9 14"
 D="32"
 opt="u"
-num_trials=5
+num_trials=1
 
 echo "Running exp 1..."
+
+#Header for our exp1_n data
+printf "N, T, W, D, Worker Rate, Speedup\n" >> exp_data/exp1.csv
 for n in $N; do
-    #Header for our exp1_n data
-    printf "N, T, W, D, Speedup\n" >> exp_data/exp1_$n.csv
     for w in $W; do
         #Reset our speedup list
         speedup_list=""
+        rate_list=""
         #Generate a T value
         T=$(( (2**20) / ($n * $w) ))
+
+        #How many total packets...
+        size=$(( $T * ($n - 1) ))
         #Run all trials for a test...
         for (( trial=1; trial<=$num_trials; trial++ )); do
             #echo "$trial"
@@ -37,6 +42,13 @@ for n in $N; do
             #If this is a valid result
             if cmp -s $s_res_file tmp/${sq_res_file##*/}; then
                 #echo "S_time : $s_time | sq_time : $sq_time\n"
+
+                #calculate rate for this trial
+                rate=$(echo "$size $sq_time" | awk '{printf "%.5f \n", $1/$2}')
+                #echo "Rate : $rate"
+
+                #Add it to our list of rates
+                rate_list+=$rate
 
                 #calculate speedup for this trial
                 speedup=$(echo "$s_time $sq_time" | awk '{printf "%.5f \n", $1/$2}')
@@ -54,12 +66,17 @@ for n in $N; do
             rm tmp/${sq_res_file##*/}
             rm $s_res_file
         done
+        #Find the median worker rate for this test...
+        rate=$(Rscript -e 'median(as.numeric(commandArgs(TRUE)))' $rate_list)
+        #Split the formatted output ([1] <rate>)
+        rate=${rate##* }
+
         #Find the median speedup for this test...
         speedup=$(Rscript -e 'median(as.numeric(commandArgs(TRUE)))' $speedup_list)
         #Split the formatted output ([1] <speedup>)
         speedup=${speedup##* }
         #Write this data into our csv file
-        printf "$n, $T, $w, $D, $speedup\n" >> exp_data/exp1_$n.csv
+        printf "$n, $T, $w, $D, $rate, $speedup\n" >> exp_data/exp1.csv
     done
 done
 
@@ -68,7 +85,7 @@ W=1
 N="2 3 5 9 14 28"
 D="32"
 opt="u"
-num_trials=5
+num_trials=1
 
 #Header for our exp2 data
 printf "N, T, W, D, ratio\n" >> exp_data/exp2.csv
@@ -106,7 +123,6 @@ for n in $N; do
 
             #calculate speedup for this trial
             ratio=$(echo "$size $p_time" | awk '{printf "%.5f \n", $1/$2}')
-
             #echo "Ratio : $ratio"
 
             #Add it to our list of speedups
@@ -135,12 +151,12 @@ W="1000 2000 4000 8000"
 N="2 3 5 9 14 28"
 D="32"
 opt="c"
-num_trials=5
+num_trials=1
 
 echo "Running exp 3..."
+#Header for our exp3 data
+printf "N, T, W, D, Speedup\n" >> exp_data/exp3.csv
 for w in $W; do
-    #Header for our exp1_n data
-    printf "N, T, W, D, Speedup\n" >> exp_data/exp3_$w.csv
     for n in $N; do
         #Reset our speedup list
         speedup_list=""
@@ -183,7 +199,7 @@ for w in $W; do
         #Split the formatted output ([1] <speedup>)
         speedup=${speedup##* }
         #Write this data into our csv file
-        printf "$n, $T, $w, $D, $speedup\n" >> exp_data/exp3_$w.csv
+        printf "$n, $T, $w, $D, $speedup\n" >> exp_data/exp3.csv
     done
 done
 
@@ -192,12 +208,12 @@ W="1000 2000 4000 8000"
 N="2 3 5 9 14 28"
 D="32"
 opt="u"
-num_trials=5
+num_trials=1
 
 echo "Running exp 4..."
+#Header for our exp1_n data
+printf "N, T, W, D, Speedup\n" >> exp_data/exp4.csv
 for w in $W; do
-    #Header for our exp1_n data
-    printf "N, T, W, D, Speedup\n" >> exp_data/exp4_$w.csv
     for n in $N; do
         #Reset our speedup list
         speedup_list=""
@@ -240,7 +256,7 @@ for w in $W; do
         #Split the formatted output ([1] <speedup>)
         speedup=${speedup##* }
         #Write this data into our csv file
-        printf "$n, $T, $w, $D, $speedup\n" >> exp_data/exp4_$w.csv
+        printf "$n, $T, $w, $D, $speedup\n" >> exp_data/exp4.csv
     done
 done
 
@@ -249,12 +265,12 @@ W="1000 2000 4000 8000"
 N="2 3 5 9 14 28"
 D="32"
 opt="e"
-num_trials=11
+num_trials=1
 
 echo "Running exp 5..."
+#Header for our exp1_n data
+printf "N, T, W, D, Speedup\n" >> exp_data/exp5.csv
 for w in $W; do
-    #Header for our exp1_n data
-    printf "N, T, W, D, Speedup\n" >> exp_data/exp5_$w.csv
     for n in $N; do
         #Reset our speedup list
         speedup_list=""
@@ -297,7 +313,7 @@ for w in $W; do
         #Split the formatted output ([1] <speedup>)
         speedup=${speedup##* }
         #Write this data into our csv file
-        printf "$n, $T, $w, $D, $speedup\n" >> exp_data/exp5_$w.csv
+        printf "$n, $T, $w, $D, $speedup\n" >> exp_data/exp5.csv
     done
 done
 

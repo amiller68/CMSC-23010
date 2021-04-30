@@ -87,14 +87,20 @@ Instead of relying on an "absence of compile errors and the verifiable correctne
 Book problems 25, 29, 30, 31, 32
 
 \subsection{Problem 25}
+Dropping condition L2 would be equivalent to violating the requirements of program order; $H$ would no longer have to abide by a legal sequential ordering.
 
 \subsection{Problem 29}
+No. The property leaves no guarantee that a thread can access $x$ in a finite amount of steps. Given an infinite amount of time to return, it is not clear why an infinite number of method calls could not each wait an infinite amount of time. Therefore the following property does not describe a wait free object.
 
 \subsection{Problem 30}
+Since all method calls completed in an infinite amount of time, the object must be lock-free. There is no last method call that is left waiting.
 
 \subsection{Problem 31}
+Consider an infinite history $H$ in which $m$ is called an infinite amount of times, $i$. On the $i + 1$th call, $m$ will return after $2^{\infty + 1}$ steps. Since this call neither returns in a finite number of steps nor has a finite bound on the number of steps it takes to return, it is neither wait-free nor bounded wait-free.
+
 
 \subsection{Problem 32}
+
 	
 	
 \end{document}
