@@ -76,9 +76,12 @@ The following addresses changes I have made to my projects design, broken down b
 \subsection{Changes to Test plan:}
 Instead of relying on an "absence of compile errors and the verifiable correctness of results" to infer the correctness of my $queue\_t$ implementation, I will test the performance of queue explicitly. I will do this by testing the performance of a $queue\_t$ against important edge cases; two that come to mind are the cases in which a writer is adding to a queue faster than a reader can extract values and the inverse, a reader extracting values from the queue faster than a writer can add to it. This behavior can be enforced through the use of the $sleep()$ method in C. Under these tests, we will take an absence of queue corruption to imply correctness of implementation.
 
-\subsection{Changes in hypotheses}
-
 \section{Results}
+The performance data for experiments 1 through 5 are stored in a folder called $hw2/exp\_data$. This folder contains the .csv files that describe performance data for a given experiment. This data was collected by running implementations for given number of trials, calculating measurements per trial, and taking median values. As such there is no other collected data other than median speedup, worker rates, and dispatcher rates. That data was deleted as it did not serve the purpose of analysis and would've have complicated my data storage scheme.
+\\\\
+As per how many trials I utilized; for experiments utilizing uniform and constant packets, I used 7 trials. For experiments calling for exponential packets, I used 13 trials. I did more trials than recommended to assure myself that I would not experience jumps in data; using less yielded less than ideal data. I did not want to use more than this in fear of exaggerated testing run times.
+\\\\
+I took this data and plotted it using Google sheets. This file can be found \href{https://docs.google.com/spreadsheets/d/1Vw1P-lnHN_f6wwxxaazGUFCf4o0oCOopKKm607_WKG0/edit?usp=sharing}{here}. A copy of this data is also available in a .pdf that can be located at $hw1/hw1\_result\_data.pdf$. The following graphs represent this data as well.
 
 \section{Analysis}
 
@@ -100,6 +103,16 @@ Consider an infinite history $H$ in which $m$ is called an infinite amount of ti
 
 
 \subsection{Problem 32}
+HWQueue is supposed to designate a queue; therefore it should support a FIFO ordering.
+\\\\
+Line 15 is not an appropriate linearization point for enq() for the reason that it does not enforce proper ordering. For example, let thread-A call line 15 prior to thread-B. If line 15 was a true linearization point for enq(), then this would be reflected in the state of the queue; however this is not the case.
+\\
+WLOG, let thread-A(enq(x)) $\rightarrow$ thread-B(enq(y)); more specifically thread-A calls line 15 prior to thread-B. However, say that thread-B calls line 16 prior to thread-A. Then, there is a possibility that some other thread C calls deq() after thread-B has set an item in the queue, but before thread-A has had the chance. Therefore, even though thread-A(enq(x)) $\rightarrow$ thread-B(enq(y)), thread-C(deq() = y) $\rightarrow$ thread-C(deq() = x) is a possible history as well. This violates our FIFO requirement.
+\\
+Therefore, line 15 is not a linearization point because it alone does not enforce a legal queue structure; it does not make the effect of the method call visible to other method calls.
+\\\\
+Line 16 is also not a linearization point, for much the same reason. Consider the example detailed above. If line 16 were truly a linearization point, then thread-C(deq() = y) $\rightarrow$ thread-C(deq() = x) would need to be true in all cases. However, consider the possibility that thread-C dequeues after thread-A has called line 16, in which case thread-C(deq() = x) $\rightarrow$ thread-C(deq() = y). In such a case, line 16 is not a linearization point. Though thread-B called it first, thread-A's object got dequeued first. Therefore line 16 is not a linearization point because it does not make the effect of the method call visible to other method calls.
+
 
 	
 	
