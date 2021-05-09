@@ -27,7 +27,7 @@ int write_result(long count, int N, int T, long W, int D, short s, char opt, dou
     }
 
     sprintf(long_buff, "Checksum: %ld\n", count);
-    printf("Checksum: %ld\n", count);
+    //printf("Checksum: %ld\n", count);
     fputs(long_buff, fp);
     fclose(fp);
     return 0;
