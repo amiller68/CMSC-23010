@@ -140,7 +140,7 @@ void mutex_unlock(void *L)
     return;
 }
 
-#define PAD 1
+#define PAD 64
 
 alock_t *new_alock(int n)
 {
@@ -173,16 +173,16 @@ void alock_lock(void *L)
 {
     uintptr_t slot = (uintptr_t) ((int) __sync_fetch_and_add(&((alock_t *) L)->tail, 1)) % ((alock_t *) L)->size;
     pthread_setspecific(((alock_t *) L)->myIndex, (void *) slot);
-    while (!((alock_t *) L)->flag[slot]){}
+    while (!((alock_t *) L)->flag[slot * PAD]){}
     return;
 }
 
 void alock_unlock(void *L)
 {
     int slot = (int) ((uintptr_t) pthread_getspecific(((alock_t *) L)->myIndex));
-    ((alock_t *) L)->flag[slot] = false;
+    ((alock_t *) L)->flag[slot * PAD] = false;
     int index = (slot + 1) % ((alock_t *) L)->size;
-    ((alock_t *) L)->flag[(slot + 1) % ((alock_t *) L)->size] = true;
+    ((alock_t *) L)->flag[index * PAD] = true;
     return;
 }
 
