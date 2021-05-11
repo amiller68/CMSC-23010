@@ -73,20 +73,17 @@ void *count_worker(void *arg)
             L->unlock(L->l);
             continue;
         }
-        //printf("thread-%ld: Last unlock!\n", pthread_self());
         L->unlock(L->l);
-        //printf("thread-%ld: Done counting!\n", pthread_self());
-        return NULL;
+        break;
     }
+    return NULL;
 }
 
 long counter(int n, lock_t *L)
 {
     int i;
-    pthread_t threads[n - 1];
+    pthread_t threads[n];
     pthread_attr_t tattr;
-    //printf("thread-%ld: top level!\n", pthread_self());
-
 
 /*
     pthread_attr_init(&tattr);
@@ -109,7 +106,6 @@ long counter(int n, lock_t *L)
             L->unlock(L->l);
             continue;
         }
-        //printf("thread-%ld: Done counting!\n", pthread_self());
         L->unlock(L->l);
         break;
     }

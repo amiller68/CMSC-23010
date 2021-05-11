@@ -39,4 +39,3 @@ stopwatch.o: stopwatch.c lib/stopwatch.h
 clean:
 	- rm -f *~ *.o  $(TARGETS)
 	- rm -r exp_data
-	- rm -r ../Docs/graphs

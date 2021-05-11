@@ -89,7 +89,7 @@ struct qnode;
 
 typedef struct qnode
 {
-    volatile bool locked;
+    bool locked;
     volatile struct qnode *next;
 } qnode_t;
 

@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     stopTimer(&sw);
 
     double time = getElapsedTime(&sw);
-    printf("%.*f\n", DBL_DIG-1, time);
+    printf("%.*f \n", DBL_DIG-1, time);
 
     destroy_lock(L);
     return 0;

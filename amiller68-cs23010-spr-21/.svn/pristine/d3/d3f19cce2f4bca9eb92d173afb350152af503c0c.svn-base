@@ -98,7 +98,7 @@ void tas_init(void *lock)
 
 void tas_lock(void *lock)
 {
-    while(__atomic_test_and_set(&((tas_t *) lock)->state, __ATOMIC_SEQ_CST)){}
+    while(__atomic_test_and_set (&((tas_t *) lock)->state, __ATOMIC_SEQ_CST)){}
     return;
 }
 
@@ -193,7 +193,7 @@ mcs_t *new_mcs(int n)
     mcs_t *lock = (mcs_t *) malloc(sizeof(mcs_t));
     lock->tail = NULL;
     //pthread_key_create(&lock->thread_init, NULL);
-    pthread_key_create(&lock->myNode, NULL);
+    pthread_key_create(&lock->myNode, free);
     //printf("Initialized lock\n");
     return lock;
 }
@@ -223,6 +223,8 @@ void mcs_lock(void *L)
     qnode_t *qnode = (qnode_t *) pthread_getspecific(((mcs_t *) L)->myNode);
     //printf("thread-%ld: Got myNode = %p\n", pthread_self(), qnode);
 
+    //__sync_synchronize();
+
     qnode_t *pred = (qnode_t *) __atomic_exchange_n(&((mcs_t *) L)->tail, qnode, __ATOMIC_SEQ_CST);
     //printf("thread-%ld: Got pred = %p\n", pthread_self(), pred);
     if (pred)
@@ -234,7 +236,6 @@ void mcs_lock(void *L)
         while (__atomic_load_n(&qnode->locked,  __ATOMIC_SEQ_CST)) {}
     }
 
-    //__atomic_store_n(&qnode->locked, false, __ATOMIC_SEQ_CST);
     return;
 }
 
@@ -250,17 +251,13 @@ void mcs_unlock(void *L)
         //printf("thread-%ld: My tail = %p\n", pthread_self(), ((mcs_t *) L)->tail);
         if (__atomic_compare_exchange_n(&((mcs_t *) L)->tail, &qnode, NULL, true, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
         {
-            //printf("thread-%ld: I am the tail!\n", pthread_self());
-
             return;
         }
-
-
         // wait until predecessor fills in its next field
         while (__atomic_load_n(&qnode->next,  __ATOMIC_SEQ_CST) == NULL) {}
     }
 
-    __atomic_store_n(&qnode->next->locked, false, __ATOMIC_SEQ_CST);
-    __atomic_store_n(&qnode->next, NULL , __ATOMIC_SEQ_CST);
+    qnode->next->locked = false;
+    qnode->next = NULL;
     return;
 }

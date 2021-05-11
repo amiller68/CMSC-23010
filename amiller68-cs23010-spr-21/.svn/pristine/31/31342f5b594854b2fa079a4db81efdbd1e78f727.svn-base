@@ -98,13 +98,14 @@ void tas_init(void *lock)
 
 void tas_lock(void *lock)
 {
-    while(__atomic_test_and_set(&((tas_t *) lock)->state, __ATOMIC_SEQ_CST)){}
+
+    while(__sync_bool_compare_and_swap(&((tas_t *) lock)->state, true, true)){}
     return;
 }
 
 void tas_unlock(void *lock)
 {
-    __atomic_clear(&((tas_t *) lock)->state, __ATOMIC_SEQ_CST);
+    ((tas_t *) lock)->state = false;
     return;
 }
 
@@ -193,7 +194,7 @@ mcs_t *new_mcs(int n)
     mcs_t *lock = (mcs_t *) malloc(sizeof(mcs_t));
     lock->tail = NULL;
     //pthread_key_create(&lock->thread_init, NULL);
-    pthread_key_create(&lock->myNode, NULL);
+    pthread_key_create(&lock->myNode, free);
     //printf("Initialized lock\n");
     return lock;
 }
@@ -208,9 +209,7 @@ int destroy_mcs(mcs_t *lock)
 void mcs_init(void *lock)
 {
     //printf("thread-%ld: Creating Initial myNode...\n", pthread_self());
-    qnode_t *ptr = (qnode_t *) malloc(sizeof(qnode_t));
-    ptr->locked = false;
-    ptr->next = NULL;
+    void *ptr = malloc(sizeof(qnode_t));
     //printf("thread-%ld: Created myNode = %p\n", pthread_self(), ptr);
     pthread_setspecific(((mcs_t *) lock)->myNode, (void *) ptr);
     //printf("thread-%ld: Initialized myNode = %p\n", pthread_self(), ptr);
@@ -220,21 +219,22 @@ void mcs_init(void *lock)
 void mcs_lock(void *L)
 {
     //printf("thread-%ld: Locking up...\n", pthread_self());
-    qnode_t *qnode = (qnode_t *) pthread_getspecific(((mcs_t *) L)->myNode);
+    volatile qnode_t *qnode = (volatile qnode_t *) pthread_getspecific(((mcs_t *) L)->myNode);
     //printf("thread-%ld: Got myNode = %p\n", pthread_self(), qnode);
 
-    qnode_t *pred = (qnode_t *) __atomic_exchange_n(&((mcs_t *) L)->tail, qnode, __ATOMIC_SEQ_CST);
+    __sync_synchronize();
+
+    volatile qnode_t *pred = (volatile qnode_t *) __atomic_exchange_n (&((mcs_t *) L)->tail, qnode, __ATOMIC_ACQUIRE);
     //printf("thread-%ld: Got pred = %p\n", pthread_self(), pred);
     if (pred)
     {
-        __atomic_store_n(&qnode->locked, true, __ATOMIC_SEQ_CST);
-        __atomic_store_n(&pred->next, qnode, __ATOMIC_SEQ_CST);
+        qnode->locked = true;
+        pred->next = qnode;
 
         // wait until predecessor gives up the lock
-        while (__atomic_load_n(&qnode->locked,  __ATOMIC_SEQ_CST)) {}
+        while (qnode->locked) {}
     }
 
-    //__atomic_store_n(&qnode->locked, false, __ATOMIC_SEQ_CST);
     return;
 }
 
@@ -242,25 +242,21 @@ void mcs_lock(void *L)
 void mcs_unlock(void *L)
 {
     //printf("thread-%ld: Unlocking...\n", pthread_self());
-    qnode_t *qnode = (qnode_t *) pthread_getspecific(((mcs_t *) L)->myNode);
+    volatile qnode_t *qnode = (volatile qnode_t *) pthread_getspecific(((mcs_t *) L)->myNode);
     //printf("thread-%ld: myNode = %p\n", pthread_self(), qnode);
 
-    if (__atomic_load_n(&qnode->next,  __ATOMIC_SEQ_CST) == NULL)
+    if (qnode->next == NULL)
     {
         //printf("thread-%ld: My tail = %p\n", pthread_self(), ((mcs_t *) L)->tail);
-        if (__atomic_compare_exchange_n(&((mcs_t *) L)->tail, &qnode, NULL, true, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
+        if (__sync_bool_compare_and_swap(&((mcs_t *) L)->tail, qnode, NULL))
         {
-            //printf("thread-%ld: I am the tail!\n", pthread_self());
-
             return;
         }
-
-
         // wait until predecessor fills in its next field
-        while (__atomic_load_n(&qnode->next,  __ATOMIC_SEQ_CST) == NULL) {}
+        while (qnode->next == NULL) {}
     }
 
-    __atomic_store_n(&qnode->next->locked, false, __ATOMIC_SEQ_CST);
-    __atomic_store_n(&qnode->next, NULL , __ATOMIC_SEQ_CST);
+    qnode->next->locked = false;
+    qnode->next = NULL;
     return;
 }

@@ -2,320 +2,179 @@
 #Make a directory to store our experimental data
 mkdir -p exp_data
 
-#Initialize directories to hold our immediate tests and results
-mkdir -p tmp
-mkdir -p res
-
-#Experiment 1: Parallel Overhead
-W="200 400 800"
-N="2 9 14"
-D="32"
-opt="u"
-num_trials=7
+#Experiment 1: Idle Lock overhead
+B="10000"
+N="1"
+#opt="t p a m"
+opt="t p a"
+num_trials=5
 
 echo "Running exp 1..."
 
-#Header for our exp1_n data
-printf "N, T, W, D, Worker Rate, Speedup\n" >> exp_data/exp1.csv
-for n in $N; do
-    for w in $W; do
-        #Reset our speedup list
-        speedup_list=""
+#Header for our exp
+printf "B,n,lock,Serial Throughput,Speedup\n" >> exp_data/exp1.csv
+
+rate_list=""
+
+#Get data from serial counter
+
+echo Getting serial throughput...
+
+for (( trial=1; trial<=$num_trials; trial++ )); do
+    res=$(./serial $B)
+    s_count=${res%%,*}
+    s_time=${res##*,}
+
+    if [ "$s_count" = "$B" ]; then
+        rate=$(echo "$B $s_time" | awk '{printf "%.5f \n", $1/$2}')
+        rate_list+=$rate
+    else
+        echo "ERR-1: serial counter: bad output"
+        touch exp_data/EXP1_ERR_SERIAL:$B:$trial
+    fi
+done
+
+#Find the median worker rate for this test...
+rate=$(Rscript -e 'median(as.numeric(commandArgs(TRUE)))' $rate_list)
+#Split the formatted output ([1] <rate>)
+echo Using serial throughput = ${rate##* }
+serial_rate=${rate##* }
+
+printf "$B,$N,s,$serial_rate,1.0\n" >> exp_data/exp1.csv
+
+for l in $opt; do
+    echo Testing lock type: $l
+    #Reset the rate list
+    rate_list=""
+    for (( trial=1; trial<=$num_trials; trial++ )); do
+        res=$(./parallel $B 1 $l)
+        p_count=${res%%,*}
+        p_time=${res##*,}
+
+        if [ "$p_count" = "$B" ]; then
+            rate=$(echo "$B $p_time" | awk '{printf "%.5f \n", $1/$2}')
+            rate_list+=$rate
+        else
+            echo "ERR-1: parallel counter: bad output"
+            touch exp_data/EXP1_ERR_PARALLEL:$B:$l:$trial
+        fi
+    done
+    #Find the median worker rate for this test...
+    rate=$(Rscript -e 'median(as.numeric(commandArgs(TRUE)))' $rate_list)
+    #Split the formatted output ([1] <rate>)
+    echo Using parrallel throughput = ${rate##* }
+    parallel_rate=${rate##* }
+
+    #Get the speedup by dividing throughput rates
+    speedup=$(echo "$serial_rate $parallel_rate" | awk '{printf "%.5f \n", $1/$2}')
+    echo Effectvie speedup = $speedup X
+
+    printf "$B,$N,$l,$serial_rate,$speedup\n" >> exp_data/exp1.csv
+done
+
+#Experiment 2: Lock Scaling
+B="10000"
+N="1 2 4 8 14"
+#opt="t p a m"
+opt="t p a"
+num_trials=5
+
+echo "Running exp 2..."
+
+for l in $opt; do
+    #Header for our exp
+    echo Testing lock type: $l
+    printf "B,n,lock,Serial Throughput,Speedup\n" >> exp_data/exp2_$l.csv
+    for n in $N; do
+        #Reset the rate list
+        echo Running count parallel, n = $n, base rate = $serial_rate
         rate_list=""
-        #Generate a T value
-        T=$(( (2**20) / ($n * $w) ))
-
-        #How many total packets...
-        size=$(( $T * ($n - 1) ))
-        #Run all trials for a test...
         for (( trial=1; trial<=$num_trials; trial++ )); do
-            #echo "$trial"
-            ./serial_queue $n $T $w $D "$trial" $opt
-            sq_res_file=$(find res/ -name "$n,$T,$w,$D,"$trial",$opt,*")
-            sq_time=${sq_res_file##*,}
-            mv $sq_res_file tmp/${sq_res_file##*/}
+            res=$(./parallel $B $n $l)
+            p_count=${res%%,*}
+            p_time=${res##*,}
 
-            ./serial $n $T $w $D "$trial" $opt
-            s_res_file=$(find res/ -name "$n,$T,$w,$D,"$trial",$opt,*")
-            s_time=${s_res_file##*,}
-
-            #If this is a valid result
-            if cmp -s $s_res_file tmp/${sq_res_file##*/}; then
-                #echo "S_time : $s_time | sq_time : $sq_time\n"
-
-                #calculate rate for this trial
-                rate=$(echo "$size $sq_time" | awk '{printf "%.5f \n", $1/$2}')
-                #echo "Rate : $rate"
-
-                #Add it to our list of rates
+            if [ "$p_count" = "$B" ]; then
+                rate=$(echo "$B $p_time" | awk '{printf "%.5f \n", $1/$2}')
                 rate_list+=$rate
-
-                #calculate speedup for this trial
-                speedup=$(echo "$s_time $sq_time" | awk '{printf "%.5f \n", $1/$2}')
-                #echo "Speedup : $speedup"
-
-                #Add it to our list of speedups
-                speedup_list+=$speedup
-
-                #echo "Speedup list : $speedup_list"
             else
-                printf 'EXP1 ERR: Failed operation <%s:%s>\n' "$n" "$w"
-                touch exp_data/EXP1_ERR_$n:$w:$trial
+                echo "ERR-2: parallel counter: bad output"
+                touch exp_data/EXP2_ERR_PARALLEL:$B:$n:$l:$trial
             fi
-            #Remove extraneous files
-            rm tmp/${sq_res_file##*/}
-            rm $s_res_file
         done
         #Find the median worker rate for this test...
         rate=$(Rscript -e 'median(as.numeric(commandArgs(TRUE)))' $rate_list)
         #Split the formatted output ([1] <rate>)
-        rate=${rate##* }
+        echo Using parallel rate = ${rate##* }
+        parallel_rate=${rate##* }
 
-        #Find the median speedup for this test...
-        speedup=$(Rscript -e 'median(as.numeric(commandArgs(TRUE)))' $speedup_list)
-        #Split the formatted output ([1] <speedup>)
-        speedup=${speedup##* }
-        #Write this data into our csv file
-        printf "$n, $T, $w, $D, $rate, $speedup\n" >> exp_data/exp1.csv
+        #Get the speedup by dividing throughput rates
+        speedup=$(echo "$serial_rate $parallel_rate" | awk '{printf "%.5f \n", $1/$2}')
+
+        printf "$B,$n,$l,$serial_rate,$speedup\n" >> exp_data/exp2_$l.csv
     done
 done
 
-#Experiment 2: Dispatcher Rate
-W=1
-N="2 3 5 9 14 28"
-D="32"
-opt="u"
-num_trials=7
-
-#Header for our exp2 data
-printf "N, T, W, D, ratio\n" >> exp_data/exp2.csv
-
-echo "Running exp 2..."
-for n in $N; do
-    #Reset our speedup list
-    ratio_list=""
-    #Generate a T value
-    T=$(( (2**20) / ($n - 1) ))
-
-    size=$(( $T * ($n - 1) ))
-
-    #echo Size: $size
-
-    #Run all trials for a test...
-    for (( trial=1; trial<=$num_trials; trial++ )); do
-        #echo Trial: n = $n, trial = $trial
-
-        ./parallel $n $T "$W" $D "$trial" $opt
-        p_res_file=$(find res/ -name "$n,$T,"$W",$D,"$trial",$opt,*")
-        p_time=${p_res_file##*,}
-
-        #echo Runtime: $p_time
-
-        mv $p_res_file tmp/${p_res_file##*/}
-
-        ./serial $n $T "$W" $D "$trial" $opt
-        s_res_file=$(find res/ -name "$n,$T,"$W",$D,"$trial",$opt,*")
-        #s_time=${s_res_file##*,}
-
-        #If this is a valid result
-        if cmp -s $s_res_file tmp/${p_res_file##*/}; then
-            #echo "S_time : $s_time | sq_time : $sq_time\n"
-
-            #calculate speedup for this trial
-            ratio=$(echo "$size $p_time" | awk '{printf "%.5f \n", $1/$2}')
-            #echo "Ratio : $ratio"
-
-            #Add it to our list of speedups
-            ratio_list+=$ratio
-
-            #echo "Speedup list : $speedup_list"
-        else
-            printf 'EXP2 ERR: Failed operation <%s:%s>\n' "$n" "$W"
-            touch exp_data/EXP2_ERR_$n:$W:$trial
-        fi
-        #Remove extraneous files
-        rm tmp/${p_res_file##*/}
-        rm $s_res_file
-    done
-    #echo $ratio_list
-    #Find the median speedup for this test...
-    ratio=$(Rscript -e 'median(as.numeric(commandArgs(TRUE)))' $ratio_list)
-    #Split the formatted output ([1] <speedup>)
-    ratio=${ratio##* }
-    #Write this data into our csv file
-    printf "$n, $T, $W, $D, $ratio\n" >> exp_data/exp2.csv
-done
-
-#Experiment 3: Speedup with Constant Load
-W="1000 2000 4000 8000"
-N="2 3 5 9 14 28"
-D="32"
-opt="c"
-num_trials=7
+#Experiment 3: Critical Sleeping
+B="3136"
+N="1 2 4 8 14"
+T="1 2 4 8 14"
+#N="1"
+#T="1"
+#opt="t p a m"
+opt="t p a"
+num_trials=5
 
 echo "Running exp 3..."
-#Header for our exp3 data
-printf "N, T, W, D, Speedup\n" >> exp_data/exp3.csv
-for w in $W; do
-    for n in $N; do
-        #Reset our speedup list
-        speedup_list=""
-        #Generate a T value
-        T=$(( (2**15) ))
-        #Run all trials for a test...
-        for (( trial=1; trial<=$num_trials; trial++ )); do
-            #echo "$trial"
-            ./parallel $n $T $w $D "$trial" $opt
-            p_res_file=$(find res/ -name "$n,$T,$w,$D,"$trial",$opt,*")
-            p_time=${p_res_file##*,}
-            mv $p_res_file tmp/${p_res_file##*/}
 
-            ./serial $n $T $w $D "$trial" $opt
-            s_res_file=$(find res/ -name "$n,$T,$w,$D,"$trial",$opt,*")
-            s_time=${s_res_file##*,}
+rate_list=""
+s_time_list=""
 
-            #If this is a valid result
-            if cmp -s $s_res_file tmp/${p_res_file##*/}; then
-                #echo "S_time : $s_time | sq_time : $sq_time\n"
-
-                #calculate speedup for this trial
-                speedup=$(echo "$s_time $p_time" | awk '{printf "%.5f \n", $1/$2}')
-                #echo "Speedup : $speedup"
-
-                #Add it to our list of speedups
-                speedup_list+=$speedup
-
-                #echo "Speedup list : $speedup_list"
-            else
-                printf 'EXP3 ERR: Failed operation <%s:%s>\n' "$n" "$w"
-                touch exp_data/EXP3_ERR_$n:$w:$trial
-            fi
-            #Remove extraneous files
-            rm tmp/${p_res_file##*/}
-            rm $s_res_file
-        done
-        #Find the median speedup for this test...
-        speedup=$(Rscript -e 'median(as.numeric(commandArgs(TRUE)))' $speedup_list)
-        #Split the formatted output ([1] <speedup>)
-        speedup=${speedup##* }
-        #Write this data into our csv file
-        printf "$n, $T, $w, $D, $speedup\n" >> exp_data/exp3.csv
+#Get data from serial counter
+for t in $T; do
+    echo Running serial sleep...t = $t
+    for (( trial=1; trial<=$num_trials; trial++ )); do
+        res=$(./my_test_serial $B $t)
+        rate_list+=$res
     done
+    #Find the median worker rate for this test...
+    rate=$(Rscript -e 'median(as.numeric(commandArgs(TRUE)))' $rate_list)
+    echo Runtime = ${rate##* }
+    #Split the formatted output ([1] <rate>)
+    s_time_list+="${rate##* } "
 done
 
-#Experiment 4: Speedup with Uniform Load
-W="1000 2000 4000 8000"
-N="2 3 5 9 14 28"
-D="32"
-opt="u"
-num_trials=7
+s_time_array=($s_time_list)
 
-echo "Running exp 4..."
-#Header for our exp1_n data
-printf "N, T, W, D, Speedup\n" >> exp_data/exp4.csv
-for w in $W; do
+for l in $opt; do
+    echo Testing lock type: $l
     for n in $N; do
-        #Reset our speedup list
-        speedup_list=""
-        #Generate a T value
-        T=$(( (2**15) ))
-        #Run all trials for a test...
-        for (( trial=1; trial<=$num_trials; trial++ )); do
-            #echo "$trial"
-            ./parallel $n $T $w $D "$trial" $opt
-            p_res_file=$(find res/ -name "$n,$T,$w,$D,"$trial",$opt,*")
-            p_time=${p_res_file##*,}
-            mv $p_res_file tmp/${p_res_file##*/}
+        i=0
+        printf "B,t,n,lock,Speedup\n" >> exp_data/exp3_$l:$n.csv
+        for t in $T; do
+            s_rate=${s_time_array[$i]}
+            echo Running sleep parallel sleep, n = $n, t = $t, base rate = $s_rate
+            i=$((i + 1))
+            #Reset the rate list
+            rate_list=""
+            for (( trial=1; trial<=$num_trials; trial++ )); do
+                res=$(./my_test_parallel $B $t $n $l)
+                rate=$res
+                rate_list+=$rate
+                #echo "ERR: serial counter: bad output"
+                #touch exp_data/EXP3_ERR_PARALLEL:$B:$t:$n:$l:$trial
+            done
+            #echo $rate_list
+            #Find the median worker rate for this test...
+            rate=$(Rscript -e 'median(as.numeric(commandArgs(TRUE)))' $rate_list)
+            #Split the formatted output ([1] <rate>)
+            echo Runtime = ${rate##* }
+            p_rate=${rate##* }
 
-            ./serial $n $T $w $D "$trial" $opt
-            s_res_file=$(find res/ -name "$n,$T,$w,$D,"$trial",$opt,*")
-            s_time=${s_res_file##*,}
+            #Get the speedup by dividing throughput rates
+            speedup=$(echo "$p_rate $s_rate" | awk '{printf "%.5f \n", $1/$2}')
 
-            #If this is a valid result
-            if cmp -s $s_res_file tmp/${p_res_file##*/}; then
-                #echo "S_time : $s_time | sq_time : $sq_time\n"
-
-                #calculate speedup for this trial
-                speedup=$(echo "$s_time $p_time" | awk '{printf "%.5f \n", $1/$2}')
-                #echo "Speedup : $speedup"
-
-                #Add it to our list of speedups
-                speedup_list+=$speedup
-
-                #echo "Speedup list : $speedup_list"
-            else
-                printf 'EXP4 ERR: Failed operation <%s:%s>\n' "$n" "$w"
-                touch exp_data/EXP4_ERR_$n:$w:$trial
-            fi
-            #Remove extraneous files
-            rm tmp/${p_res_file##*/}
-            rm $s_res_file
+            printf "$B,$t,$n,$l,$speedup\n" >> exp_data/exp3_$l:$n.csv
         done
-        #Find the median speedup for this test...
-        speedup=$(Rscript -e 'median(as.numeric(commandArgs(TRUE)))' $speedup_list)
-        #Split the formatted output ([1] <speedup>)
-        speedup=${speedup##* }
-        #Write this data into our csv file
-        printf "$n, $T, $w, $D, $speedup\n" >> exp_data/exp4.csv
     done
 done
-
-#Experiment 5: Speedup with Constant Load
-W="1000 2000 4000 8000"
-N="2 3 5 9 14 28"
-D="32"
-opt="e"
-num_trials=13
-
-echo "Running exp 5..."
-#Header for our exp1_n data
-printf "N, T, W, D, Speedup\n" >> exp_data/exp5.csv
-for w in $W; do
-    for n in $N; do
-        #Reset our speedup list
-        speedup_list=""
-        #Generate a T value
-        T=$(( (2**15) ))
-        #Run all trials for a test...
-        for (( trial=1; trial<=$num_trials; trial++ )); do
-            #echo "$trial"
-            ./parallel $n $T $w $D "$trial" $opt
-            p_res_file=$(find res/ -name "$n,$T,$w,$D,"$trial",$opt,*")
-            p_time=${p_res_file##*,}
-            mv $p_res_file tmp/${p_res_file##*/}
-
-            ./serial $n $T $w $D "$trial" $opt
-            s_res_file=$(find res/ -name "$n,$T,$w,$D,"$trial",$opt,*")
-            s_time=${s_res_file##*,}
-
-            #If this is a valid result
-            if cmp -s $s_res_file tmp/${p_res_file##*/}; then
-                #echo "S_time : $s_time | sq_time : $sq_time\n"
-
-                #calculate speedup for this trial
-                speedup=$(echo "$s_time $p_time" | awk '{printf "%.5f \n", $1/$2}')
-                #echo "Speedup : $speedup"
-
-                #Add it to our list of speedups
-                speedup_list+=$speedup
-
-                #echo "Speedup list : $speedup_list"
-            else
-                printf 'EXP3 ERR: Failed operation <%s:%s>\n' "$n" "$w"
-                touch exp_data/EXP3_ERR_$n:$w:$trial
-            fi
-            #Remove extraneous files
-            rm tmp/${p_res_file##*/}
-            rm $s_res_file
-        done
-        #Find the median speedup for this test...
-        speedup=$(Rscript -e 'median(as.numeric(commandArgs(TRUE)))' $speedup_list)
-        #Split the formatted output ([1] <speedup>)
-        speedup=${speedup##* }
-        #Write this data into our csv file
-        printf "$n, $T, $w, $D, $speedup\n" >> exp_data/exp5.csv
-    done
-done
-
-#Remove our temporary folder
-rm -r tmp

@@ -37,13 +37,15 @@ int main(int argc, char *argv[])
     stopTimer(&sw);
 
     double time = getElapsedTime(&sw);
-    printf("%.*f \n", DBL_DIG-1, time);
+    printf("%.*f\n", DBL_DIG-1, time);
 
     return 0;
 }
 
 void sleeper(int B, int t)
 {
+    UNUSED(B);
+    UNUSED(t);
     volatile long final_count = 0;
     for(; final_count < B;)
     {
