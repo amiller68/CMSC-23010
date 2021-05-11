@@ -5,8 +5,7 @@ mkdir -p exp_data
 #Experiment 1: Idle Lock overhead
 B="10000"
 N="1"
-#opt="t p a m"
-opt="t p a"
+opt="t p a m"
 num_trials=5
 
 echo "Running exp 1..."
@@ -75,8 +74,7 @@ done
 #Experiment 2: Lock Scaling
 B="10000"
 N="1 2 4 8 14"
-#opt="t p a m"
-opt="t p a"
+opt="t p a m"
 num_trials=5
 
 echo "Running exp 2..."
@@ -119,10 +117,7 @@ done
 B="3136"
 N="1 2 4 8 14"
 T="1 2 4 8 14"
-#N="1"
-#T="1"
-#opt="t p a m"
-opt="t p a"
+opt="t p a m"
 num_trials=5
 
 echo "Running exp 3..."
