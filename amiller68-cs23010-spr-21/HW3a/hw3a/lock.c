@@ -248,7 +248,7 @@ void mcs_unlock(void *L)
     if (__atomic_load_n(&qnode->next,  __ATOMIC_SEQ_CST) == NULL)
     {
         //printf("thread-%ld: My tail = %p\n", pthread_self(), ((mcs_t *) L)->tail);
-        if (__atomic_compare_exchange_n(&((mcs_t *) L)->tail, &qnode, NULL, true, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
+        if (__sync_bool_compare_and_swap(&((mcs_t *) L)->tail, qnode, NULL))
         {
             //printf("thread-%ld: I am the tail!\n", pthread_self());
 
