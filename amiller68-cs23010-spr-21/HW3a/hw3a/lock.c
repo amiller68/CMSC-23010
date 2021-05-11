@@ -193,7 +193,7 @@ mcs_t *new_mcs(int n)
     mcs_t *lock = (mcs_t *) malloc(sizeof(mcs_t));
     lock->tail = NULL;
     //pthread_key_create(&lock->thread_init, NULL);
-    pthread_key_create(&lock->myNode, NULL);
+    pthread_key_create(&lock->myNode, free);
     //printf("Initialized lock\n");
     return lock;
 }
