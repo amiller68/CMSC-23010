@@ -1,0 +1,155 @@
+\documentclass[]{article}
+%opening
+\title{Writeup Document}
+\author{Alex Miller}
+\addtolength{\oddsidemargin}{-.875in}
+\addtolength{\evensidemargin}{-.875in}
+\addtolength{\textwidth}{1.75in}
+\addtolength{\topmargin}{-.875in}
+\addtolength{\textheight}{1.75in}
+\setcounter{secnumdepth}{0}
+\usepackage{cancel}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\graphicspath{ {./} }
+\usepackage[ruled,vlined, linesnumbered]{algorithm2e}
+\DontPrintSemicolon
+
+
+\begin{document}
+\maketitle
+
+\section{Changes}
+\subsection{Changes to the design}
+The following addresses changes I have made to my projects design, broken down by module:
+\begin{itemize}
+	\item Top level modules (serial.c, parallel.c, serial-queue.c)
+	\begin{itemize}
+		\item These files will still take in the same inputs. Moreover, they ways in which they are called and incorporated into the deriving experimental results is functionally the same.
+		\item However, these files will no longer utilize a 2D array in which to store verifiable experimental results. Instead, worker threads called in these files will individually maintain counters. These counters will be computed by adding up the values of checksums derived by the worker thread. The results of these counters will then be added together and written to the appropriately named file, instead of the checksums themselves (as specified in our previous design). We can use the results of these counters in order to compare the results of parallel, serial, and serial-queue implementations using the same number of sources and packets and the same seed. 
+		\\\\
+		We can say that our implementations are consistent if they generate the same final counter value. This isn't necessarily proof that they produced equivalent checksums, in the sense that different implementations' computation of a common counter value could occur with widely varied checksum values. Strictly speaking, this method of verification is more dubious than our previous design, in the sense that our previous design inferred correctness from actual output (that is otherwise lost in our program) while out current design infers correctness indirectly. However, the odds of a false positive verification is low, considering that checksums are expressed as $longs$, and there are on the order of $2^{64}$ distinct values that final counters could take (accounting for overflow).
+		\\\\
+		The purpose of this is to minimize the amount of time in the critical section spent writing to memory; of course, this method still requires reading and writing memory. However, by having each thread operate on a single memory location, rather than O(T) total locations, we can minimize cache misses and get a clearer picture of performance.
+		\item Additionally, serial\_queue.c will no longer reference chksum\_parallel(). Instead it will utilize chksum\_serial\_queue(), details on this new function to follow. This change is due to the necessity of generating and dispatching packets in a round-robin manner, and the added run-times associated with called pthread\_create(). These factors complicate the re-use of the steps outlined chksum\_parallel(), but with only one thread, for the purposes of testing serial\_queue.c. So instead, chksum\_serial\_queue() will utilize the same basic structure and data structures of chksum\_parallel(), but utilize a framework more suited to a single worker thread. This will give us a better idea of how the dispatcher is operating.
+	\end{itemize}
+	\item Algorithm implementation level (chksum.c)
+	\begin{itemize}
+		\item First off, as our use of a 2D array in which to store results is deprecated, methods described in these files won't reference $res$ anymore. Instead, they will use the values of checksums they generate in order to arrive at an amalgamated checksum value.
+		\item Secondly, we must alter our design of our dispatcher, as specified in the method chksum\_parallel.c(). Initially, we described a loop structure in which the dispatcher generates packets for a source until it's worker thread's queue is full, before moving on to populate the queue of another worker thread. This does not implement a "round-robin" loop structure, as required by the assignment. Moreover, this does actually simulate real-world use of our firewall, as packets from various sources would be arriving at our dispatcher simultaneously.
+		\\\\
+		Instead, for a given worker thread, the dispatcher will wait until its queue contains space for another packet, write to the thread's associated queue, and then move on to the next worker thread. It will repeat this process $T$ times, or as long as there are packets to dispatch to worker threads.
+		\item Thirdly, as mentioned above, serial\_queue.c will utilize a new method, chksum\_serial\_queue(). This method will be defined in the chksum.c module.
+		\\\\
+		The key distinction between chksum\_serial\_queue() and chksum\_parallel() is that rather than multiple threads maintaining single queues, a single thread will cycle through all the queues, dequeing packets and calculating checksums in the same order that the dispatcher places packets into the queues. Because of this, the single worker thread does not utilize the $done$ field of its $packet\_queue\_t$ structs, but instead exits once it has processed $T$ packets from $N - 1$ sources.
+		\\\\
+		This requires the use of a new data structure in order to pass the values of $N$ and $T$ to the single thread. The impact of this structure on performance is negligible, considering that is relatively small (the struct contains a pointer to a pool of $packet\_queue\_t$ instances, as well as two integers to hold the values of $N$ and $T$) and is only passed to one thread.
+	\end{itemize}
+	\item Queue data structure (queue.c)
+	\begin{itemize}
+		\item My $queue_t$, now known as $packet_queue_t$ declaration now defines the following struct members and methods:
+		\begin{itemize}
+			\item $head, tail$ : Volatile integers specifying the locations of the head and tail of the queue
+			\item $packets$ : a Lamport queue with depth $D$
+			\item $done$ : a Volatile boolean designating whether or not we should keep
+			reading from $Q$. This is initially set to $false$
+			\item $final\_count$ : As described above, each worker thread generates a combined checksum value. This value is incremented by this value every time its associated worker generates said variable.
+		\end{itemize}
+		\item Methods:
+		\begin{itemize}
+			\item $enq(Packet_t x)$ : queue a $Packet_t$ instance in the Queue. Return an error code if the queue is full.
+			\item $deq()$ : dequeue the next $Packet_t$ from $Q$. Return a NULL value if the queue is empty
+			\item $create\_queue\_pool()/destroy\_queue\_pool()$ : initialization/destruction methods for a block of queues
+		\end{itemize}
+	\end{itemize}
+	\item Testing script (test\_script.sh)
+	\begin{itemize}
+		\item Here, I would like less to discuss a change, so much as discuss a design choice that arose in the writing my testing script; the assignment specifies that we should generate our plots using median data from our experiments. This can take be done in two ways. The first involves generating median speedup data by choosing median data points for all trials of a given test. The second involves calculating speedup for all trials, and taking the median value as a data point. My implementation opted for the latter option.
+		\\\\
+		This choice entails two advantages. Primarily, it reduces the necessary complexity of my testing script; rather than having to keep track of, store, and operate on multiple data points for a single test, I can collapse that information into a single data point per test. This makes reasoning about the data in an excel spreadsheet much easier. Secondly, this method has the added bonus of associating tests within a given trial, rather than comparing runtimes for trials that may utilize wildly different data sets.
+	\end{itemize}
+	\item These changes remain consistent with my previously stated invariants
+\end{itemize}
+
+\subsection{Changes to Test plan:}
+Instead of relying on an "absence of compile errors and the verifiable correctness of results" to infer the correctness of my $queue\_t$ implementation, I will test the performance of queue explicitly. I will do this by testing the performance of a $queue\_t$ against important edge cases; two that come to mind are the cases in which a writer is adding to a queue faster than a reader can extract values and the inverse, a reader extracting values from the queue faster than a writer can add to it. This behavior can be enforced through the use of the $sleep()$ method in C. Under these tests, we will take an absence of queue corruption to imply correctness of implementation.
+
+\section{Results}
+The performance data for experiments 1 through 5 are stored in a folder called $hw2/exp\_data$. This folder contains the .csv files that describe performance data for a given experiment. This data was collected by running implementations for given number of trials, calculating measurements per trial, and taking median values. As such there is no other collected data other than median speedup, worker rates, and dispatcher rates. That data was deleted as it did not serve the purpose of analysis and would've have complicated my data storage scheme.
+\\\\
+As per how many trials I utilized; for experiments utilizing uniform and constant packets, I used 7 trials. For experiments calling for exponential packets, I used 13 trials. I did more trials than recommended to assure myself that I would not experience jumps in data; using less yielded less than ideal data. I did not want to use more than this in fear of exaggerated testing run times.
+\\\\
+I took this data and plotted it using Google sheets. This file can be found \href{https://docs.google.com/spreadsheets/d/1Vw1P-lnHN_f6wwxxaazGUFCf4o0oCOopKKm607_WKG0/edit?usp=sharing}{here}. A copy of this data is also available in a .pdf that can be located at $HW2/hw2\_result\_data.pdf$. Please refer to one of these to verify my data.
+
+\
+
+\section{Analysis}
+
+\subsection{Experiment 1}
+As the data demonstrates, serial\_queue.c experienced some slow-down in relation to serial.c. However, this effect seemed to mitigated by larger values of $W$. In some cases serial\_queue.c experienced speedup, yet these measurements are probably due to aberrations in the testing environment; serial\_queue.c is functionally equivalent to serial.c, but with increased overhead, such speedup cannot be explained by performance.
+\\
+Worker rates (N * T / serial\_queue runtime) tended to not be affected by the value of $N$. As I suggested in my hypotheses, they do seem to be correlated with $W$, but in the opposite sense. I expected "that worker rate go up for larger values of $W$." However, the data clearly shows the opposite. This is probably explained by two factors. For one, higher values of $W$ mean that each packet takes longer to process, effectively lowering the rate at which a worker can process packets. For two, within this experiment, higher values of $W$ are balanced out with inversely proportional values of $T$; less packets, and more work per packet, means that the worker thread gets through packets slower.
+\\
+However, I was mostly right in my contention that slowdown would "be dwarfed or otherwise obscured by increasingly large values of $n$, $T$, and $W$." The data shows that trials utilizing larger values of $N$ experienced less slowdown; the same may be said to be true of the trials for $N = 9, 14$. However, the data doesn't necessarily show increases in speedup with increases in $W$. Moreover, this relation is complicated by the fact that $T$ decreases as $N$ and $W$ increase in these trials.
+\\
+Additionally, if my base contention was that we should see decreases in slowdown due to overhead for larger input spaces, the fact that all trials in Experiment 1 used the same input space should support a more constant level of slowdown in these trials. Therefore there is a compelling sense in which the relative speedups for varying values of $N$ might in themselves be aberrations. 
+\\
+Therefore I was perhaps supported in my estimation that slowdown is obscured by a function of input space, but wrong to think that worker rates would go up with $W$. 
+
+\subsection{Experiment 2}
+The data demonstrates the dispatcher's ability to distribute packets suffers as the number of worker threads grows. This confirms my earlier hypothesis that "the ratio of $(n - 1) * T : runtime$ [should] shrink for larger values of $n$," however my reasoning might need to be updated.
+\\
+I stated that I thought this effect would be explained by increased overhead from the maintenance of more threads. However, I think there might be an alternative reason. As all the packets generated in this experiment are trivially small, worker threads can probably read packets faster than the dispatcher can fill their queues. More worker threads means that the dispatcher must spend time waiting on and filling more queues, meaning many worker threads waste time waiting on empty queues. This explains why we would see the dispatcher rate decrease for larger values of $N$.
+\subsection{Experiment 3}
+The data demonstrates that larger values of $W$ are associated with larger measured speedup. The data also shows that speedup increases with $N$, but experiences diminishing returns, and even drops in performance for larger values of $N$ ($N = 28$).
+\\
+Overall the data supports my earlier hypothesis that "In comparing the observed speedup for different values of $W$, we should expect increased speedup for larger values of $W$. However, given a value of $W$, we should expect to possibly see some speedup for some values of $n$, if only accompanied by diminishing returns on speedup for larger values of $n$. The curves we might expect from these plots  would be concave downward in shape."
+\\
+My reasoning was that higher values of $N$ and $W$ represented larger input spaces, which offer greater opportunity for parallelization. This was hedged with the further assertion that larger values of $N$ would also entail increased slowdown due to increased overhead. However, another explanation could be that, by attempting to use 28 threads, which is more cores than the system supports, we added overhead without performance, explaining why we could see drops in performance when moving from $N = 14$ to $N = 28$. This entails that we should see the same effects in other experiments, violating our expectations of linear speedup.
+\subsection{Experiment 4}
+The data demonstrates a similar downward curve as cited in Experiment 3. Likewise, we see the same increases in speedup for lager values of $W$ as well as decreasing returns for larger values of $N$. Interestingly enough we don't see such a drop off in the graph for $W = 1000$, but that could be an aberration.
+\\
+We do not see increased levels of speedup by using uniform packet distributions over the constant generator used in Experiment 3. Therefore the data does not confirm my hypothesis that greater amounts of speedup would be possible using a uniform packet generator due to increased opportunity for parallelization. We do not see near-linear speedup as I predicted
+\\ 
+As before, part of our observations are explained by the difficulties entailed in using 28 threads. As to why we don't see near linear speedup; it is perhaps because I misunderstood how the uniform generator works; the input space is not de-facto larger, it is just distributed uni-formally rather than constantly.
+
+
+\subsection{Experiment 5}
+The data demonstrates the same downward curves as cited in Experiments 3 and 4. Moreover, these curves demonstrate a loss in performance in relation to the prior two experiments. Likewise, we see the same increases in speedup for lager values of $W$ as well as decreasing returns for larger values of $N$. Interestingly enough we don't see such a drop off in the graph for $W = 1000$, but that could be an aberration.
+\\
+We do not see increased levels of speedup by using exponential packet distributions over the constant generator used in Experiment 3. Therefore the data does not confirm my hypothesis that greater amounts of speedup would be possible using a exponential packet generator due to increased opportunity for parallelization. We do not see linear speedup as I predicted.
+\\ 
+As before, part of our observations are explained by the difficulties entailed in using 28 threads. As to why we don't see near linear speedup; it is perhaps because I misunderstood how the exponential generator works; the input space is not de-facto larger, it is just distributed exponentially rather than constantly. This also explains why we should see relative losses in performance over Experiments 3 and 4; because the packets are distributed across sources with random exponential functions, some workers end up with really large packets to work on while other have already finished. This detracts from the benefits of parallelization and explains why we should see less speedup while using an exponential packet generator over a constant over uniform one.
+\section{Theory Questions}
+Book problems 25, 29, 30, 31, 32
+
+\subsection{Problem 25}
+Dropping condition L2 would be equivalent to violating the requirements of program order; $H$ would no longer have to abide by a legal sequential ordering.
+
+\subsection{Problem 29}
+No. The property leaves no guarantee that a thread can access $x$ in a finite amount of steps. Given an infinite amount of time to return, it is not clear why an infinite number of method calls could not each wait an infinite amount of time. Therefore the following property does not describe a wait free object.
+
+\subsection{Problem 30}
+Since all method calls completed in an infinite amount of time, the object must be lock-free. There is no last method call that is left waiting.
+
+\subsection{Problem 31}
+Consider an infinite history $H$ in which $m$ is called an infinite amount of times, $i$. On the $i + 1$th call, $m$ will return after $2^{\infty + 1}$ steps. Since this call neither returns in a finite number of steps nor has a finite bound on the number of steps it takes to return, it is neither wait-free nor bounded wait-free.
+
+
+\subsection{Problem 32}
+HWQueue is supposed to designate a queue; therefore it should support a FIFO ordering.
+\\\\
+Line 15 is not an appropriate linearization point for enq() for the reason that it does not enforce proper ordering. For example, let thread-A call line 15 prior to thread-B. If line 15 was a true linearization point for enq(), then this would be reflected in the state of the queue; however this is not the case.
+\\
+WLOG, let thread-A(enq(x)) $\rightarrow$ thread-B(enq(y)); more specifically thread-A calls line 15 prior to thread-B. However, say that thread-B calls line 16 prior to thread-A. Then, there is a possibility that some other thread C calls deq() after thread-B has set an item in the queue, but before thread-A has had the chance. Therefore, even though thread-A(enq(x)) $\rightarrow$ thread-B(enq(y)), thread-C(deq() = y) $\rightarrow$ thread-C(deq() = x) is a possible history as well. This violates our FIFO requirement.
+\\
+Therefore, line 15 is not a linearization point because it alone does not enforce a legal queue structure; it does not make the effect of the method call visible to other method calls.
+\\\\
+Line 16 is also not a linearization point, for much the same reason. Consider the example detailed above. If line 16 were truly a linearization point, then thread-C(deq() = y) $\rightarrow$ thread-C(deq() = x) would need to be true in all cases. However, consider the possibility that thread-C dequeues after thread-A has called line 16, in which case thread-C(deq() = x) $\rightarrow$ thread-C(deq() = y). In such a case, line 16 is not a linearization point. Though thread-B called it first, thread-A's object got dequeued first. Therefore line 16 is not a linearization point because it does not make the effect of the method call visible to other method calls.
+
+
+	
+	
+\end{document}

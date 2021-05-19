@@ -59,9 +59,10 @@ The following addresses changes I have made to my projects design, broken down b
 		\end{itemize}
 		\item Methods:
 		\begin{itemize}
-			\item $enq(Packet_t x)$ : queue a $Packet_t$ instance in the Queue. Return an error code if the queue is full.
-			\item $deq()$ : dequeue the next $Packet_t$ from $Q$. Return a NULL value if the queue is empty
-			\item $create\_queue\_pool()/destroy\_queue\_pool()$ : initialization/destruction methods for a block of queues
+			\item int enq(packet\_queue\_t *Q, volatile Packet\_t x) : queue a $Packet\_t$ instance in the Queue $Q$. Return 1 if $Q$ is full, 0 if otherwise and $x$ was enqueued successfully.
+			\item volatile Packet\_t *deq(packet\_queue\_t *Q) : dequeue the next $Packet\_t$ from $Q$. Return a NULL value if the queue is empty
+			\item packet\_queue\_t *create\_queue\_pool(int num\_q, int D) : allocate an array of $num\_q$ packet\_queue\_t structs, each of depth $D$
+			\item void destroy\_queue\_pool(packet\_queue\_t *Q) : Destroy an array of packet\_queue\_t structs allocated as a block queues
 		\end{itemize}
 	\end{itemize}
 	\item Testing script (test\_script.sh)

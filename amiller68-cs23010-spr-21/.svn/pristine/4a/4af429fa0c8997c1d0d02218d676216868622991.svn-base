@@ -1,0 +1,122 @@
+\documentclass[]{article}
+%opening
+\title{Theory}
+\author{Alex Miller}
+\addtolength{\oddsidemargin}{-.875in}
+\addtolength{\evensidemargin}{-.875in}
+\addtolength{\textwidth}{1.75in}
+
+\addtolength{\topmargin}{-.875in}
+\addtolength{\textheight}{1.75in}
+\setcounter{secnumdepth}{0}
+\usepackage{cancel}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage[ruled,vlined, linesnumbered]{algorithm2e}
+\DontPrintSemicolon
+
+
+\begin{document}
+	\maketitle
+	
+\section{Theory Questions}
+Provide solutions to questions 2, 3, 4, 5, 7, 8, 11, 14, 15, 16.
+
+\subsection{Problem 2}
+\begin{enumerate}
+	\item Liveliness; the good thing that eventually happens is that all patrons will be served
+	\item Safety; the bad thing that never happens is that things float away into the air
+	\item Safety; the bad thing that never happens is that the program gets stuck
+	\item Liveliness; the good thing that eventually happens is that the user is informed of the event
+	\item Liveliness; the good thing that eventually happens is that the user is informed of the event
+	\item Safety; the bad thing that never happens is that the cost of living decreases
+	\item Liveliness; the good thing that eventually happens is that I will die and have to pay taxes 
+	\item Safety; the bad thing that never happens is that I never get snuck up on by a Harvard man.
+\end{enumerate}
+\subsection{Problem 3}
+Alice and Bob set cans up on each other's window sills; each one's can has a string attached to it that the other can use to knock it down.
+Alice does the following:
+\begin{enumerate}
+	\item She waits until the can on her window sill is down.
+	\item She releases the pets.
+	\item When the pets return, Alice checks whether they finished the food. If so, she
+	resets the can on her windowsill and then knocks down the can on Bob's window sill.
+\end{enumerate}
+Bob does the following:
+\begin{enumerate}
+	\item He waits until the can on his window sill is down.
+	\item He puts food in the yard.
+	\item He resets the can on his window sill and knocks down the can on Alice's window sill.
+\end{enumerate}
+\subsection{Problem 4}
+The following assume $P \geq 2$
+In the case that we know the initial state of the switch is off:
+\begin{itemize}
+	\item We designate one of the $P$ prisoners to be the $counter$; the counter maintains an internal count $c$. Initially, $c = 0$.
+	\item When the counter enters the switch room:
+	\begin{itemize}
+		\item If the switch is down, they do nothing and leave
+		\item If the switch is up, the counter increments $c$
+	\end{itemize}
+	\item When $c = P - 1$, the counter may declare that all $P$ prisoners have visited the switch room at least once
+	\item For all other prisoners; when they enter the switch room:
+	\begin{itemize}
+		\item If the switch is down, and they have never flipped the switch before, they should switch it to the "on" position
+		\item If the switch is up, they should do nothing and leave.
+	\end{itemize}
+\end{itemize}
+In the case that we don't know the initial state of the switch:
+\begin{itemize}
+	\item We designate one of the $P$ prisoners to be the $counter$; the counter maintains an internal count $c$. Initially, $c = 0$.
+	\item When the counter enters the switch room:
+	\begin{itemize}
+		\item If the switch is down, they do nothing and leave
+		\item If the switch is up, the counter increments $c$
+	\end{itemize}
+	\item When $c = (2 * P) - 1$, the counter may declare that all $P$ prisoners have visited the switch room at least once
+	\item For all other prisoners; when they enter the switch room:
+	\begin{itemize}
+		\item If the switch is down, and they have not flipped the switch more than twice, they should switch it to the "on" position
+		\item If the switch is up, they should do nothing and leave.
+	\end{itemize}
+\end{itemize}
+\subsection{Problem 5}
+
+\subsection{Problem 7}
+$S_n = \frac{1}{1 - p + \frac{p}{n}}$ \\
+$S_2 = \frac{1}{1 - p + \frac{p}{2}}$ \\
+$S_2 = \frac{1}{1 - \frac{p}{2}}$ \\
+$1 - \frac{p}{2} = \frac{1}{S_2}$ \\
+$p = 2 - \frac{2}{S_2}$ \\
+$S_n = \frac{1}{1 - (2 - \frac{2}{S_2}) + \frac{(2 - \frac{2}{S_2})}{n}}$\\
+
+\subsection{Problem 8}
+\begin{itemize}
+	\item Let $proc-a$ denote a uni-processor that executes five instructions per second
+	\item Let $proc-b$ denote a ten processor multi-processor, each core of which executes 1 instruction per second
+	\item Let $P$ be a program we are considering to run on either $proc-a$ or $proc-b$. The fraction of $P$ that is parallelizable is $p$.
+	\item Let $A$ be the time it takes for $proc-a$ to run $P$
+	\item Let $B_i, 0 \leq i \leq 10$ be the time it takes for $proc-b$ to run $P$ using $i$ cores
+	\item $5 * A = B_1$
+	\item $B_{10} = \frac{1}{1 - p + \frac{p}{10}} = \frac{1}{1 - \frac{9p}{10}}$
+	\item Assume that $P$ runs faster on $proc-b$ than $proc-a$ while using all ten cores:
+	\begin{itemize}
+		\item That must mean that $B_{10}$ achieves a speedup ratio of $5$ or more in relation to $B_1$
+		\item Therefore $B_{10} \geq 5$
+		\item $\frac{1}{1 - \frac{9p}{10}} \geq 5$
+		\item $\frac{9p}{10} \geq 1 - \frac{1}{5}$
+		\item $\frac{9p}{10} \geq \frac{4}{5}$
+		\item $9p \geq 8$
+		\item $p \geq \frac{8}{9}$
+	\end{itemize}
+	\item Therefore, if $P$ runs better on $proc-b$ than $proc-a$, it must be that  $p \geq \frac{8}{9}$. 
+	\item Therefore, if $p > \frac{8}{9}$, we should buy $proc-b$, and $proc-a$ if otherwise.
+	\end{itemize}
+
+\subsection{Problem 11}
+\subsection{Problem 14}
+\subsection{Problem 15}
+\subsection{Problem 16}
+
+\end{document}

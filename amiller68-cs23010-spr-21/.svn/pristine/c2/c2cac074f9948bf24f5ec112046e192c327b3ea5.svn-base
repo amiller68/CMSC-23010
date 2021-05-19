@@ -1,0 +1,34 @@
+General test frame work set up!
+--This line, and those below, will be ignored--
+
+M    hw1/Makefile
+M    hw1/floyd.c
+A    hw1/fw_parallel.c
+A    hw1/fw_serial.c
+A    hw1/graph.c
+A    hw1/graph.py
+M    hw1/lib/floyd.h
+A    hw1/res
+A    hw1/stopwatch.c
+A    hw1/test_script.sh
+A    hw1/utils
+A    hw1/utils/crc32.c
+A    hw1/utils/crc32.h
+A    hw1/utils/fingerprint.c
+A    hw1/utils/fingerprint.h
+A    hw1/utils/generators.c
+A    hw1/utils/generators.h
+A    hw1/utils/hashgenerator.c
+A    hw1/utils/hashgenerator.h
+A    hw1/utils/hashtable.c
+A    hw1/utils/hashtable.h
+A    hw1/utils/packetsource.c
+A    hw1/utils/packetsource.h
+A    hw1/utils/paddedprim.c
+A    hw1/utils/paddedprim.h
+A    hw1/utils/seriallist.c
+A    hw1/utils/seriallist.h
+A    hw1/utils/statistics.c
+A    hw1/utils/statistics.h
+A    hw1/utils/stopwatch.c
+A    hw1/utils/stopwatch.h
