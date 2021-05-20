@@ -4,33 +4,43 @@
 #include "lib/lock.h"
 #include "lib/fingerprint.h"
 #include <time.h>
+#include <stdbool.h>
 #include <pthread.h>
+#include <unistd.h>
+
 
 #define UNUSED(x) (void)(x)
+
+/* timed_flag - launch a timer in a detached threead. This thread sets the
+ *              value pointed to by flag to true after M milliseconds
+ *
+ * volatile bool *flag : a pointer to a volatile flag
+ *
+ * int M : the number of milliseconds this thread should sleep for
+ *
+ * returns - nothing.
+ */
+void start_timed_flag(volatile bool *flag, int M);
 
 long chksum_serial(PacketSource_t *packet_source, volatile Packet_t * (* packet_method)(PacketSource_t *, int), int n, int M)
 {
     long through_count = 0;
     volatile Packet_t *packet;
-    double runtime = (double) M / 1000;
-    double elapsedTime = 0.0;
-    time_t start, now;
+    volatile bool *done = (volatile bool *) malloc(sizeof(bool));
+    *done = false;
     int i;
 
-    printf("Dispatching packets for %f s...\n", runtime);
+    printf("Dispatching packets for %d ms...\n", M);
 
     i = 0;
-    time(&start);
+    start_timed_flag(done, M);
 
     /*Prototype Dispatcher*/
-    while(elapsedTime < runtime)
+    while(!*done)
     {
         packet = (*packet_method)(packet_source, i);
         through_count += getFingerprint(packet->iterations, packet->seed);
         free((void*)packet);
-
-        now = time(NULL);
-        elapsedTime = difftime(now, start);
         i = (i + 1) % n;
     }
 
@@ -51,80 +61,51 @@ typedef struct thread_args {
 long chksum_parallel(PacketSource_t *packet_source, volatile Packet_t * (* packet_method)(PacketSource_t *, int), int N, int M, int D, char L, char S)
 {
     long through_count = 0;
-    packet_queue_t *Q_pool = create_queue_pool(N, D);
+    packet_queue_t *Q_pool;
     volatile Packet_t *packet;
     pthread_t threads[N];
-    thread_args_t *T = (thread_args_t *) calloc(N, sizeof(thread_args_t));
     void * (*worker_method)(void *);
-    lock_t *L_pool;
-    double runtime = (double) M / 1000;
-    double elapsedTime = 0.0;
-    time_t start, now;
     int i;
-
-    if(!Q_pool)
-    {
-        return -1;
-    }
 
     switch(S)
     {
         case 'L':
             worker_method = L_worker;
             //No Locks used in this implementation
-            L_pool = NULL;
+            Q_pool = create_queue_pool(N, D, 'n', 0);
             break;
         case 'H':
             worker_method = H_worker;
             //Each queue has one lock and one worker
-            L_pool = new_lock_pool(N, L, 1);
+            Q_pool = create_queue_pool(N, D, L, 1);
             break;
         case 'A':
             worker_method = A_worker;
             //No Locks used in this implementation
-            L_pool = NULL;
+            Q_pool = create_queue_pool(N, D, L, N);
             break;
         default:
             printf("ERR: Invalid strategy type\n");
-            destroy_queue_pool(Q_pool);
             return -1;
     }
 
+    volatile bool *done = Q_pool[0].done;
+
     for (i = 0; i < N; i++)
     {
-        T[i].i = i;
-        T[i].Q = &Q_pool[i];
-        T[i].L = &L_pool[i];
-        pthread_create(&threads[i], NULL, worker_method, (void *) &T[i]);
+        pthread_create(&threads[i], NULL, worker_method, (void *) &Q_pool[i]);
     }
 
-    printf("Dispatching packets for %f s...\n", runtime);
+    printf("Dispatching packets for %d M ms...\n", M);
     i = 0;
-    time(&start);
+    start_timed_flag(done, M);
 
-    /*
-    while(1)
-    {
-        packet = (*packet_method)(packet_source, i);
-        while(elapsedTime < runtime)
-        {
-            if(enq(&Q_pool[i], packet))
-            {
-                i = (i + 1) % N;
-                break;
-            }
-
-            now = time(NULL);
-            elapsedTime = difftime(now, start);
-        }
-    }
-    */
 
     /*Prototype Dispatcher*/
-    while(elapsedTime < runtime)
+    while(!*done)
     {
         packet = (*packet_method)(packet_source, i);
-        while(elapsedTime < runtime)
+        while(!*done)
         {
             //While waiting, check if it's time to stop feeding....
             if(enq(&Q_pool[i], packet))
@@ -132,15 +113,10 @@ long chksum_parallel(PacketSource_t *packet_source, volatile Packet_t * (* packe
                 //Update i
                 printf("Dispatched to queue-%d\n", i);
                 i = (i + 1) % N;
-                //Get New time diff
-                now = time(NULL);
-                elapsedTime = difftime(now, start);
+
                 packet = NULL;
                 break;
             }
-
-            now = time(NULL);
-            elapsedTime = difftime(now, start);
         }
         if(packet)
         {
@@ -150,12 +126,6 @@ long chksum_parallel(PacketSource_t *packet_source, volatile Packet_t * (* packe
     }
 
     printf("Done dispatching packets!\n");
-
-    for (i = 0; i < N; i++)
-    {
-        printf("Signalling done: thread-%d\n", i);
-        Q_pool[i].done = true;
-    }
 
     printf("Joining threads...\n");
     for (i = 0; i < N; i++)
@@ -167,14 +137,37 @@ long chksum_parallel(PacketSource_t *packet_source, volatile Packet_t * (* packe
         through_count += Q_pool[i].through_count;
     }
 
-    if(L_pool)
-    {
-        destroy_lock_pool(N, L_pool);
-    }
 
-    destroy_queue_pool(Q_pool);
+    destroy_queue_pool(N, Q_pool);
     return through_count;
 }
+
+typedef struct timer_args
+{
+    int M;
+    volatile bool *flag;
+} timer_args_t;
+
+void *timer_thread(void *arg)
+{
+    timer_args_t *args = (timer_args_t *) arg;
+    usleep(args->M * 1000);
+    *args->flag = true;
+    free(args);
+    return NULL;
+}
+
+void start_timed_flag(volatile bool *flag, int M)
+{
+    pthread_t timer;
+    timer_args_t *args = (timer_args_t *) malloc(sizeof(timer_args_t));
+    args->M = M;
+    args->flag = flag;
+    pthread_create(&timer, NULL, timer_thread, (void *) args);
+    pthread_detach(timer);
+    return;
+}
+
 
 //perhaps adding N and T as args can be helpful
 void *L_worker(void *args)
@@ -197,11 +190,17 @@ void *L_worker(void *args)
             pthread_yield();
         }
 
-        getFingerprint(packet->iterations, packet->seed);
-        //printf("[%ld] - Dequeued packet, res = %ld\n", pthread_self(), res);
-
-        Q->through_count ++;
+        if (!Q->done)
+        {
+            getFingerprint(packet->iterations, packet->seed);
+            //printf("[%ld] - Dequeued packet, res = %ld\n", pthread_self(), res);
+            Q->through_count++;
+            free((void*)packet);
+            continue;
+        }
         free((void*)packet);
+        return NULL;
+
     }
     return NULL;
 }

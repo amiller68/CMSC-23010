@@ -78,6 +78,11 @@ int destroy_lock(lock_t *L)
 //Create a lock of a specified type
 lock_t *new_lock_pool(int size, char type, int n)
 {
+    if (type == 'n')
+    {
+        return NULL;
+    }
+
     lock_t *L_pool = (lock_t *) calloc(size, sizeof(lock_t));
     lock_t *L;
 
@@ -130,6 +135,7 @@ lock_t *new_lock_pool(int size, char type, int n)
 int destroy_lock_pool(int size, lock_t *L_pool)
 {
     lock_t *L;
+
     for(int i = 0; i < size; i++)
     {
         L = &L_pool[i];

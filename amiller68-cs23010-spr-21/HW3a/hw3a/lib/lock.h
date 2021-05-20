@@ -33,6 +33,10 @@ typedef struct lock
 lock_t *new_lock(char type, int n);
 //Destroy a lock of a specified type
 int destroy_lock(lock_t *L);
+int destroy_lock_pool(lock_t *L_pool);
+lock_t *new_lock_pool(int size, char type, int n);
+
+
 
 /*Lock Implementations*/
 

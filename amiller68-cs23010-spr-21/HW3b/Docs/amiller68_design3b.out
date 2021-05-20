@@ -1,4 +1,7 @@
 \BOOKMARK [1][-]{section*.1}{Modules, data structures, interfaces, invariants:}{}% 1
 \BOOKMARK [1][-]{section*.2}{Test plan:}{}% 2
 \BOOKMARK [1][-]{section*.3}{Expected Performance \(Performance Hypotheses\):}{}% 3
-\BOOKMARK [2][-]{section*.4}{Exp}{section*.3}% 4
+\BOOKMARK [2][-]{section*.4}{Idle Lock Overhead:}{section*.3}% 4
+\BOOKMARK [2][-]{section*.5}{Speedup with Uniform Load:}{section*.3}% 5
+\BOOKMARK [2][-]{section*.6}{Speedup with Exponential Load:}{section*.3}% 6
+\BOOKMARK [2][-]{section*.7}{Speedup with Awesome}{section*.3}% 7

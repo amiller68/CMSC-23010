@@ -34,10 +34,13 @@ packet_queue_t *new_packet_queue(int D)
     return Q;
 }
 
-packet_queue_t *create_queue_pool(int num_q, int D)
+packet_queue_t *create_queue_pool(int num_q, int D, char L, int n)
 {
     //Block allocate space for our Q structs
     packet_queue_t *Q_pool = (packet_queue_t *) malloc(num_q * sizeof(packet_queue_t));
+    lock_t *L_pool = new_lock_pool(num_q, L, n);
+    volatile bool *done = (volatile bool *) malloc(sizeof(volatile bool));
+    *done = false;
 
     if (!Q_pool)
     {
@@ -56,11 +59,13 @@ packet_queue_t *create_queue_pool(int num_q, int D)
 
     for (int i = 0; i < num_q; i++)
     {
+        Q_pool[i].i = i;
         Q_pool[i].packets = packets + (i * D);
         Q_pool[i].tail = 0;
         Q_pool[i].head = 0;
         Q_pool[i].D = D;
-        Q_pool[i].done = false;
+        Q_pool[i].L = &L_pool[i];
+        Q_pool[i].done = done;
         Q_pool[i].through_count = 0;
     }
 
@@ -83,8 +88,9 @@ void clear_queue(packet_queue_t *Q)
 
 
 /*MIGHT NEED TO FREE REMAINING PACKET*/
-int destroy_queue_pool(packet_queue_t * Q_pool)
+int destroy_queue_pool(int size, packet_queue_t * Q_pool)
 {
+    destroy_lock_pool(size, Q_pool[0].L);
     free(Q_pool[0].packets);
     free(Q_pool);
     return 0;
