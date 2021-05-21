@@ -40,6 +40,8 @@ packet_queue_t *create_queue_pool(int num_q, int D, char L, int n)
     packet_queue_t *Q_pool = (packet_queue_t *) malloc(num_q * sizeof(packet_queue_t));
     lock_t *L_pool = new_lock_pool(num_q, L, n);
     volatile bool *done = (volatile bool *) malloc(sizeof(volatile bool));
+    int *N = (int *) malloc(sizeof(int));
+    *N = num_q;
     *done = false;
 
     if (!Q_pool)
@@ -66,6 +68,7 @@ packet_queue_t *create_queue_pool(int num_q, int D, char L, int n)
         Q_pool[i].D = D;
         Q_pool[i].L = &L_pool[i];
         Q_pool[i].done = done;
+        Q_pool[i].N = N;
         Q_pool[i].through_count = 0;
     }
 
@@ -75,13 +78,9 @@ packet_queue_t *create_queue_pool(int num_q, int D, char L, int n)
 void clear_queue(packet_queue_t *Q)
 {
     volatile Packet_t *packet;
-    for(int i = 0; i < Q->D; i++)
+    while((packet = deq(Q)) != NULL)
     {
-        packet = Q->packets[i];
-        if (packet)
-        {
-            free((void*)packet);
-        }
+        free((void*)packet);
     }
     return;
 }

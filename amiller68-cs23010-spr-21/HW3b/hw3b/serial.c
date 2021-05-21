@@ -49,14 +49,14 @@ int main(int argc, char *argv[])
     }
 
 
-    printf("Options intialized...\n");
-    int through_count = 0;
-    printf("Making packet source...\n");
+    //printf("Options intialized...\n");
+    long through_count = 0;
+    //printf("Making packet source...\n");
     PacketSource_t *packet_source = createPacketSource(W, n, s);
-    printf("Running test...\n");
+    //printf("Running test...\n");
     through_count = chksum_serial(packet_source, packet_method, n, M);
 
-    printf("%d\n", through_count);
+    printf("%ld \n", through_count);
 
     deletePacketSource(packet_source);
     return 0;

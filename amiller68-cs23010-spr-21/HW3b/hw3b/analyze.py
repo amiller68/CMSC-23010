@@ -4,32 +4,99 @@ import pandas as pd
 from pathlib import Path
 Path("../Docs/graphs").mkdir(parents=True, exist_ok=True)
 
-#Experiment 1:
-opt = ['t', 'p', 'a', 'm']
-N = [1, 2, 4, 8, 14]
-T = [1, 2, 4, 8, 14]
+#Overhead Experiment
+ind = np.arange(6)  # the x locations for the groups
+width = 0.35        # the width of the bars
 
-exp1_data = pd.read_csv("exp_data/exp1.csv")
+W = ['25', '50', '100', '200', '400', '800']
+L = ['p', 'a']
+
+overhead_data = pd.read_csv("exp_data/overhead.csv")
 
 fig = plt.figure(figsize = (10,10))
-ax = fig.add_subplot(111)
-Locks = ['Serial', 'TAS', 'Mutex', 'A-Lock', 'MCS']
-Speedup = exp1_data["Speedup"]
-plt.ylabel('Speedup (parallel throughput / serial throughput)')
-plt.title('Exp-1: B = 10000, N = 1')
-ax.set_xticklabels(Locks, rotation = 45)
-ax.set_yticks(np.arange(0, 13, 0.5))
-ax.bar(Locks,Speedup)
-plt.savefig('../Docs/graphs/exp1.png')
+
+#Extract Relevant data from CSV
+p_data = overhead_data[overhead_data["L"] == 'p']
+a_data = overhead_data[overhead_data["L"] == 'a']
+
+p_speedup = p_data["Speedup"]
+a_speedup = a_data["Speedup"]
+
+
+plt.xlabel('W')
+plt.ylabel('Speedup (Lock-Free throughput / Home-Queue throughput)')
+plt.title('Idle Lock Overhead: M = 2000 ms, N = 1, U = t, D = 8')
+plt.xticks(ind + width / 2, W)
+plt.yticks(np.arange(0, 2, 0.1))
+
+plt.bar(ind, p_speedup, width, color='royalblue', label = 'Mutex')
+
+plt.bar(ind + width, a_speedup, width, color='seagreen', label = "Anderson")
+
+plt.legend(loc='best')
+
+plt.axhline(y=1.0, color='r', linestyle='--', label = "Ideal Performance")
+
+plt.savefig('../Docs/graphs/overhead.png')
 plt.clf()
 
-#Experiment 2
-fig = plt.figure(figsize = (10,10))
-ideal=[1.0,1.0,1.0,1.0,1.0]
-plt.plot(N, ideal, label ="Ideal Performance")
-plt.ylabel('Speedup (parallel throughput / serial throughput)')
-plt.xlabel('Number of thread (N)')
+
+#Speedup Experiments
+
+W = [1000, 2000, 4000, 8000]
+N = [2, 3, 4, 8, 14, 28]
+
+U = ['t', 'f']
+L = ['p', 'a']
+S = ['H', 'A']
+
+packet_method = ""
+lock_type = ""
+strategy = ""
+
+speedup_data  = pd.read_csv("exp_data/speedup.csv")
+
+L_data = speedup_data[speedup_data["S"] == 'L']
+L_speedup
+H_data = speedup_data[speedup_data["S"] == 'H']
+A_data = speedup_data[speedup_data["S"] == 'A']
+
+
+for u in U:
+    #Set our Packet retrieval method
+    if u == 't':
+        packet_method = "Uniform"
+    else:
+        packet_method = "Exponential"
+
+    #Set our Strategy
+    for s in S:
+        if s == 'H':
+            strategy = "Home-Queue"
+        else:
+            strategy = "Anderon"
+
+        fig = plt.figure(figsize = (10,10))
+        plt.ylabel('Speedup (parallel throughput / serial throughput)')
+        plt.xlabel('Number of thread (N)')
+
+
+
+
+
+
+        for l in L:
+            if l == 'p':
+                packet_method = "Mutex"
+            else:
+                packet_method = "Anderon"
+            for
+
+
+
 plt.title('Exp-2: B = 10000')
+
+
 
 for l in opt:
     exp2_data = pd.read_csv("exp_data/exp2_" + l + ".csv")

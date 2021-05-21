@@ -17,6 +17,9 @@ typedef struct packet_queue {
     //A pointer to a flag
     volatile bool *done;
 
+    //A non-specific shared integer for queue pools
+    int *N;
+
     lock_t *L;
 
     long through_count;

@@ -23,24 +23,28 @@ lock_t *new_lock(char type, int n)
         case 't':
             L->l = (void *) new_tas(n);
             L->init_thread = tas_init;
+            L->trylock = tas_trylock;
             L->lock = tas_lock;
             L->unlock = tas_unlock;
             return L;
         case 'p':
             L->l = (void *) new_mutex(n);
             L->init_thread = mutex_init;
+            L->trylock = mutex_trylock;
             L->lock = mutex_lock;
             L->unlock = mutex_unlock;
             return L;
         case 'a':
             L->l = (void *) new_alock(n);
             L->init_thread = alock_init;
+            L->trylock = alock_trylock;
             L->lock = alock_lock;
             L->unlock = alock_unlock;
             return L;
         case 'm':
             L->l = (void *) new_mcs(n);
             L->init_thread = mcs_init;
+            L->trylock = mcs_trylock;
             L->lock = mcs_lock;
             L->unlock = mcs_unlock;
             return L;
@@ -102,27 +106,31 @@ lock_t *new_lock_pool(int size, char type, int n)
             case 't':
                 L->l = (void *) new_tas(n);
                 L->init_thread = tas_init;
+                L->trylock = tas_trylock;
                 L->lock = tas_lock;
                 L->unlock = tas_unlock;
-                return L;
+                break;
             case 'p':
                 L->l = (void *) new_mutex(n);
                 L->init_thread = mutex_init;
+                L->trylock = mutex_trylock;
                 L->lock = mutex_lock;
                 L->unlock = mutex_unlock;
-                return L;
+                break;
             case 'a':
                 L->l = (void *) new_alock(n);
                 L->init_thread = alock_init;
+                L->trylock = alock_trylock;
                 L->lock = alock_lock;
                 L->unlock = alock_unlock;
-                return L;
+                break;
             case 'm':
                 L->l = (void *) new_mcs(n);
                 L->init_thread = mcs_init;
+                L->trylock = mcs_trylock;
                 L->lock = mcs_lock;
                 L->unlock = mcs_unlock;
-                return L;
+                break;
             default:
                 printf("ERR: Invalid lock type\n");
                 free(L);
@@ -134,6 +142,11 @@ lock_t *new_lock_pool(int size, char type, int n)
 //Destroy a lock of a specified type
 int destroy_lock_pool(int size, lock_t *L_pool)
 {
+    if(!L_pool)
+    {
+        return 1;
+    }
+
     lock_t *L;
 
     for(int i = 0; i < size; i++)
@@ -183,6 +196,12 @@ void tas_init(void *lock)
     return;
 }
 
+int tas_trylock(void *lock)
+{
+    tas_lock(lock);
+    return 1;
+}
+
 void tas_lock(void *lock)
 {
     while(__atomic_test_and_set(&((tas_t *) lock)->state, __ATOMIC_SEQ_CST)){}
@@ -213,6 +232,12 @@ void mutex_init(void *lock)
 {
     UNUSED(lock);
     return;
+}
+
+int mutex_trylock(void *lock)
+{
+    //If the lock gets acquired, the function retutns 0
+    return (pthread_mutex_trylock((pthread_mutex_t *) lock) == 0);
 }
 
 void mutex_lock(void *L)
@@ -254,6 +279,17 @@ void alock_init(void *lock)
 {
     UNUSED(lock);
     return;
+}
+
+int alock_trylock(void *L)
+{
+    int last_slot = (int) __atomic_load_n(&((alock_t *) L)->tail,  __ATOMIC_SEQ_CST) % ((alock_t *) L)->size;
+    if (((alock_t *) L)->flag[last_slot * PAD])
+    {
+        alock_lock(L);
+        return 1;
+    }
+    return 0;
 }
 
 void alock_lock(void *L)
@@ -302,6 +338,12 @@ void mcs_init(void *lock)
     pthread_setspecific(((mcs_t *) lock)->myNode, (void *) ptr);
     //printf("thread-%ld: Initialized myNode = %p\n", pthread_self(), ptr);
     return;
+}
+
+int mcs_trylock(void *lock)
+{
+    mcs_lock(lock);
+    return 1;
 }
 
 void mcs_lock(void *L)

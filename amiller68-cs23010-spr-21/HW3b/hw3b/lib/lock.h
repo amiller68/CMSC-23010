@@ -16,6 +16,7 @@ typedef struct lock
     //if needed, Initialize thread specfific structs
     void (*init_thread)(void *);
 
+    int (*trylock)(void *);
     void (*lock)(void *);
     void (*unlock)(void *);
 } lock_t;
@@ -43,6 +44,8 @@ int destroy_tas(tas_t *lock);
 
 void tas_init(void *lock);
 
+int tas_trylock(void *lock);
+
 void tas_lock(void *L);
 
 void tas_unlock(void *L);
@@ -54,6 +57,8 @@ pthread_mutex_t *new_mutex(int n);
 int destroy_mutex(pthread_mutex_t *lock);
 
 void mutex_init(void *lock);
+
+int mutex_trylock(void *lock);
 
 void mutex_lock(void *L);
 
@@ -73,6 +78,8 @@ alock_t *new_alock(int n);
 int destroy_alock(alock_t *lock);
 
 void alock_init(void *lock);
+
+int alock_trylock(void *lock);
 
 void alock_lock(void *L);
 
@@ -99,6 +106,8 @@ mcs_t *new_mcs(int n);
 int destroy_mcs(mcs_t *lock);
 
 void mcs_init(void *lock);
+
+int mcs_trylock(void *lock);
 
 void mcs_lock(void *L);
 

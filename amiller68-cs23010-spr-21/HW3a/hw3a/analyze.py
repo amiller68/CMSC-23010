@@ -4,12 +4,11 @@ import pandas as pd
 from pathlib import Path
 Path("../Docs/graphs").mkdir(parents=True, exist_ok=True)
 
-#Experiment 1:
-opt = ['t', 'p', 'a', 'm']
-N = [1, 2, 4, 8, 14]
-T = [1, 2, 4, 8, 14]
+#Overhead Experiment
+W = [25, 50, 100, 200, 400, 800]
+L = ['p', 'a']
 
-exp1_data = pd.read_csv("exp_data/exp1.csv")
+overhead_data = pd.read_csv("exp_data/overhead.csv")
 
 fig = plt.figure(figsize = (10,10))
 ax = fig.add_subplot(111)
