@@ -45,3 +45,4 @@ generators.o: generators.c lib/generators.h
 clean:
 	- rm -f *~ *.o  $(TARGETS)
 	- rm -r exp_data
+	- rm -r ../Docs/graphs
