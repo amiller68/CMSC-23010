@@ -44,11 +44,11 @@ plt.clf()
 #Speedup Experiments
 
 W = [1000, 2000, 4000, 8000]
-N = [2, 3, 4, 8, 14, 28]
+N = np.array([2, 3, 4, 8, 14, 28])
 
 U = ['t', 'f']
 L = ['p', 'a']
-S = ['H', 'A']
+S = ['H', 'A'] #Comparison Strategies
 
 packet_method = ""
 lock_type = ""
@@ -56,11 +56,13 @@ strategy = ""
 
 speedup_data  = pd.read_csv("exp_data/speedup.csv")
 
+#Extract Strategy Relevant Data
 L_data = speedup_data[speedup_data["S"] == 'L']
-L_speedup
+L_speedup = L_data["Speedup"]
 H_data = speedup_data[speedup_data["S"] == 'H']
+H_speedup = H_data["Speedup"]
 A_data = speedup_data[speedup_data["S"] == 'A']
-
+A_speedup = A_data["Speedup"]
 
 for u in U:
     #Set our Packet retrieval method
@@ -69,71 +71,62 @@ for u in U:
     else:
         packet_method = "Exponential"
 
-    #Set our Strategy
+    #Set our Strategy and where were reading data
     for s in S:
         if s == 'H':
             strategy = "Home-Queue"
+            Comp_data = H_data
         else:
-            strategy = "Anderon"
+            strategy = "Awesome"
+            Comp_data = A_data
 
-        fig = plt.figure(figsize = (10,10))
-        plt.ylabel('Speedup (parallel throughput / serial throughput)')
-        plt.xlabel('Number of thread (N)')
+        #Define a figure to hold a graph for each value of W
+        fig, axs = plt.subplots(2, 2, figsize=(10,10))
 
-
-
-
-
-
-        for l in L:
-            if l == 'p':
-                packet_method = "Mutex"
-            else:
-                packet_method = "Anderon"
-            for
+        #Set a Figure title
+        fig.suptitle('Speedup Results: Load = ' + packet_method + ', Comparison Strategy = ' + strategy)
 
 
+        for ax in axs.flat:
+            ax.set(xlabel='Number of Threads (N)', ylabel='Speedup (Parallel throughput / Serial throughput)')
+            ax.set_xticks(N)
+            ax.set_xlim([0, 30])
 
-plt.title('Exp-2: B = 10000')
+        # Hide x labels and tick labels for top plots and y ticks for right plots.
+        for ax in axs.flat:
+            ax.label_outer()
 
 
+        #Used to index through W
+        i = 0
 
-for l in opt:
-    exp2_data = pd.read_csv("exp_data/exp2_" + l + ".csv")
-    Speedup = exp2_data["Speedup"]
-    if l == 't':
-        plt.plot(N, Speedup, label = ("Lock = Test And Set"))
-    if l == 'p':
-        plt.plot(N, Speedup, label = ("Lock = Mutex"))
-    if l == 'a':
-        plt.plot(N, Speedup, label = ("Lock = Anderson"))
-    if l == 'm':
-        plt.plot(N, Speedup, label = ("Lock = MCS"))
+        #Iterate through subplots
+        for x in range(2):
+            for y in range(2):
+                w = W[i]
+                ax = axs[x, y]
+                i = i + 1
+                ax.set_title("W = " + str(w))
 
-plt.legend()
-plt.savefig('../Docs/graphs/exp2.png')
-plt.clf()
+                #Plot data for Lock-Free Speedup
+                L_speedup = np.array((L_data[(L_data['W'] == w) & (L_data['U'] == u)])["Speedup"].values.tolist())
+                ax.plot(N, L_speedup, 'tab:blue', label = "Straetgy = Lock-Free, Lock = N/A")
+                for l in L:
+                    #Set The lock type label
+                    if l == 'p':
+                        lock_type = "Mutex"
+                        color = 'tab:green'
+                    else:
+                        lock_type = "Anderson"
+                        color = 'tab:red'
 
-#Esperiment 3
-for l in opt:
-    fig = plt.figure(figsize = (10,10))
-    plt.plot(N, ideal, label ="Ideal Performance")
-    plt.ylabel('Speedup (parallel runtime / serial runtime)')
-    plt.xlabel('Size of critical section (t ms)')
-    if l == 't':
-        plt.title('Exp-3: B = 3136 (ms), lock = Test And Set')
-    if l == 'p':
-        plt.title('Exp-3: B = 3136 (ms), lock = Mutex')
-    if l == 'a':
-        plt.title('Exp-3: B = 3136 (ms), lock = Anderson')
-    if l == 'm':
-        plt.title('Exp-3: B = 3136 (ms), lock = MCS')
+                    #Get the comparison speedup data for
+                    Comp_speedup = np.array((Comp_data[(Comp_data['W'] == w) & (Comp_data['U'] == u) & (Comp_data['L'] == l)])["Speedup"].values.tolist())
+                    ax.plot(N, Comp_speedup, color, label = "Straetgy = " + strategy + ", Lock = " + lock_type)
+        #Done With plotting, save an move onto the next expierment
 
-    for n in N:
-        exp3_data = pd.read_csv("exp_data/exp3_" + l + ":" + str(n) + ".csv")
-        Speedup = exp3_data["Speedup"]
-        plt.plot(T, Speedup, label = ("N = " + str(n)))
-
-    plt.legend()
-    plt.savefig('../Docs/graphs/exp3_' + l + '.png')
-    plt.clf()
+        handles, labels = ax.get_legend_handles_labels()
+        fig.legend(handles, labels, loc='lower right')
+        #plt.legend(loc=1)
+        plt.savefig('../Docs/graphs/speedup_' + u + ':' + s + '.png')
+        plt.clf()

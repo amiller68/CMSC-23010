@@ -10,14 +10,14 @@ exp2="t"
 
 
 #Experiment 1: Idle Lock overhead
-M="200"
+M="2000"
 N="1"
 W="25 50 100 200 400 800"
 U="t"
 D="8"
 L="p a"
 
-num_trials=1
+num_trials=5
 
 if [[ $exp1 = "t" ]]
 then
@@ -71,11 +71,11 @@ then
     done
 fi
 
-#Experiment 2: Speedup with Uniform Load
-M="200"
+#Speedup with Varying Loads, straetgies, and locks
+M="2000"
 N="1 2 3 7 13 27"
 W="1000 2000 4000 8000"
-U="t"
+U="t f"
 D="8"
 L="p a"
 S="H A"
@@ -93,9 +93,9 @@ then
         #If this is an test utilizing Uniform packets
         if [[ $u = "t" ]]
         then
-            num_trials=1
+            num_trials=5
         else
-            num_trials=1
+            num_trials=11
         fi
 
         for w in $W; do
@@ -103,7 +103,7 @@ then
                 #Get a serial rate
                 rate_list=""
                 for (( trial=1; trial<=$num_trials; trial++ )); do
-                    throughput=$(./serial $M $n $w $U "$trial")
+                    throughput=$(./serial $M $n $w $u "$trial")
                     #echo $throughput
                     rate=$(echo "$throughput $M" | awk '{printf "%.5f \n", $1/$2}')
                     rate_list+=$rate
@@ -111,13 +111,13 @@ then
                 #Find the median worker rate for this test...
                 rate=$(Rscript -e 'median(as.numeric(commandArgs(TRUE)))' $rate_list)
                 #Split the formatted output ([1] <rate>)
-                echo Using Serial Rate = ${rate##* }
+                echo Using Serial Rate = ${rate##* } packet / ms
                 s_rate=${rate##* }
 
                 rate_list=""
                 #Get a Lock-Free Data point
                 for (( trial=1; trial<=$num_trials; trial++ )); do
-                    throughput=$(./parallel $M $n $w $U "$trial" $D nan L)
+                    throughput=$(./parallel $M $n $w $u "$trial" $D nan L)
 
                     rate=$(echo "$throughput $M" | awk '{printf "%.5f \n", $1/$2}')
                     rate_list+=$rate
@@ -126,7 +126,7 @@ then
                 #Find the median worker rate for this test...
                 rate=$(Rscript -e 'median(as.numeric(commandArgs(TRUE)))' $rate_list)
                 #Split the formatted output ([1] <rate>)
-                echo Using Lock-Free Rate = ${rate##* }
+                echo Using Lock-Free Rate = ${rate##* } packet / ms
                 LF_rate=${rate##* }
 
                 speedup=$(echo "$LF_rate $s_rate" | awk '{printf "%.5f \n", $1/$2}')
@@ -134,11 +134,17 @@ then
                 printf "$M,$n,$w,$u,$D,nan,L,$speedup\n" >> exp_data/speedup.csv
 
                 for s in $S; do
+                    if [[ $s = "H" ]]
+                    then
+                        strat="Home-Queue"
+                    else
+                        strat="Awesome"
+                    fi
                     for l in $L; do
                         rate_list=""
                         #Get a Home-QUeue Data point
                         for (( trial=1; trial<=$num_trials; trial++ )); do
-                            throughput=$(./parallel $M $n $w $U "$trial" $D $l H)
+                            throughput=$(./parallel $M $n $w $u "$trial" $D $l $s)
 
                             rate=$(echo "$throughput $M" | awk '{printf "%.5f \n", $1/$2}')
                             rate_list+=$rate
@@ -147,15 +153,15 @@ then
                         #Find the median worker rate for this test...
                         rate=$(Rscript -e 'median(as.numeric(commandArgs(TRUE)))' $rate_list)
                         #Split the formatted output ([1] <rate>)
-                        echo Using Home-Free Queue = ${rate##* }
+                        echo Using $strat rate = ${rate##* } packet / ms
 
                         #Our HW data point
-                        HQ_rate=${rate##* }
+                        strat_rate=${rate##* }
 
                         #The faster LF is than HQ, the larger this value is. Perhpas this better termed slowdown
-                        speedup=$(echo "$HQ_rate $s_rate" | awk '{printf "%.5f \n", $1/$2}')
+                        speedup=$(echo "$strat_rate $s_rate" | awk '{printf "%.5f \n", $1/$2}')
 
-                        printf "$M,$N,$w,$U,$D,$l,$s,$speedup\n" >> exp_data/speedup.csv
+                        printf "$M,$n,$w,$u,$D,$l,$s,$speedup\n" >> exp_data/speedup.csv
                     done
                 done
             done
