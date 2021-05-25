@@ -102,7 +102,7 @@ long chksum_parallel(PacketSource_t *packet_source, volatile Packet_t * (* packe
     start_timed_flag(done, M);
 
 
-    /*Prototype Dispatcher*/
+    /*Dispatcher*/
 
     while(!*done)
     {
