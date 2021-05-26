@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.1.23)  26 MAY 2021 12:48
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.1.23)  26 MAY 2021 18:01
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -444,147 +444,109 @@ Underfull \hbox (badness 10000) in paragraph at lines 104--113
  []
 
 
-Overfull \hbox (29.75427pt too wide) in paragraph at lines 104--113
+Overfull \hbox (28.76004pt too wide) in paragraph at lines 104--113
 \OT1/cmr/m/n/10 I took this data and plot-ted it us-ing the script an-a-lyze.py
 . These graphs are stored in the folder $\OML/cmm/m/it/10 HW\OT1/cmr/m/n/10 3\O
-ML/cmm/m/it/10 a=Docs=graphs$\OT1/cmr/m/n/10 .
+ML/cmm/m/it/10 b=Docs=graphs$\OT1/cmr/m/n/10 .
+ []
+
+<graphs/overhead.png, id=66, 1084.05pt x 1084.05pt>
+File: graphs/overhead.png Graphic file (type png)
+<use graphs/overhead.png>
+Package pdftex.def Info: graphs/overhead.png  used on input line 114.
+(pdftex.def)             Requested size: 542.02368pt x 542.02368pt.
+
+Overfull \hbox (70.5512pt too wide) in paragraph at lines 114--115
+[] 
  []
 
 
-LaTeX Warning: File `graphs/exp1.png' not found on input line 115.
-
-
-! Package pdftex.def Error: File `graphs/exp1.png' not found: using draft setti
-ng.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.115 \includegraphics[scale=0.5]{graphs/exp1.png}
-                                                  \\
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 115--116
-
- []
-
-
-LaTeX Warning: File `graphs/exp2.png' not found on input line 117.
-
-
-! Package pdftex.def Error: File `graphs/exp2.png' not found: using draft setti
-ng.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.117 \includegraphics[scale=0.5]{graphs/exp2.png}
-                                                  \\
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 117--118
-
- []
-
-
-LaTeX Warning: File `graphs/exp3_t.png' not found on input line 119.
-
-
-! Package pdftex.def Error: File `graphs/exp3_t.png' not found: using draft set
-ting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.119 ...udegraphics[scale=0.5]{graphs/exp3_t.png}
-                                                  \\
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-LaTeX Warning: File `graphs/exp3_p.png' not found on input line 120.
-
-
-! Package pdftex.def Error: File `graphs/exp3_p.png' not found: using draft set
-ting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.120 ...udegraphics[scale=0.5]{graphs/exp3_p.png}
-                                                  \\
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-LaTeX Warning: File `graphs/exp3_a.png' not found on input line 121.
-
-
-! Package pdftex.def Error: File `graphs/exp3_a.png' not found: using draft set
-ting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.121 ...udegraphics[scale=0.5]{graphs/exp3_a.png}
-                                                  \\
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-LaTeX Warning: File `graphs/exp3_m.png' not found on input line 122.
-
-
-! Package pdftex.def Error: File `graphs/exp3_m.png' not found: using draft set
-ting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.122 ...udegraphics[scale=0.5]{graphs/exp3_m.png}
-                                                  \\
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 119--123
+Underfull \hbox (badness 10000) in paragraph at lines 114--115
 
  []
 
 [3]
+<graphs/speedup_t:H.png, id=72, 1084.05pt x 1084.05pt>
+File: graphs/speedup_t:H.png Graphic file (type png)
+<use graphs/speedup_t:H.png>
+Package pdftex.def Info: graphs/speedup_t:H.png  used on input line 116.
+(pdftex.def)             Requested size: 542.02368pt x 542.02368pt.
+
+Overfull \hbox (70.5512pt too wide) in paragraph at lines 116--117
+[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 116--117
+
+ []
+
+[4 <./graphs/overhead.png>]
+<graphs/speedup_f:H.png, id=78, 1084.05pt x 1084.05pt>
+File: graphs/speedup_f:H.png Graphic file (type png)
+<use graphs/speedup_f:H.png>
+Package pdftex.def Info: graphs/speedup_f:H.png  used on input line 118.
+(pdftex.def)             Requested size: 542.02368pt x 542.02368pt.
+
+Overfull \hbox (70.5512pt too wide) in paragraph at lines 118--119
+[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 118--119
+
+ []
+
+[5 <./graphs/speedup_t:H.png>]
+<graphs/speedup_t:A.png, id=84, 1084.05pt x 1084.05pt>
+File: graphs/speedup_t:A.png Graphic file (type png)
+<use graphs/speedup_t:A.png>
+Package pdftex.def Info: graphs/speedup_t:A.png  used on input line 120.
+(pdftex.def)             Requested size: 542.02368pt x 542.02368pt.
+
+Overfull \hbox (70.5512pt too wide) in paragraph at lines 120--121
+[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 120--121
+
+ []
+
+[6 <./graphs/speedup_f:H.png>]
+<graphs/speedup_f:A.png, id=90, 1084.05pt x 1084.05pt>
+File: graphs/speedup_f:A.png Graphic file (type png)
+<use graphs/speedup_f:A.png>
+Package pdftex.def Info: graphs/speedup_f:A.png  used on input line 122.
+(pdftex.def)             Requested size: 542.02368pt x 542.02368pt.
+
+Overfull \hbox (70.5512pt too wide) in paragraph at lines 122--123
+[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 122--123
+
+ []
+
+[7 <./graphs/speedup_t:A.png>]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 128.
- [4]
+ [8 <./graphs/speedup_f:A.png>]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 128.
- (./amiller68_writeup3b.aux)
+
+(./amiller68_writeup3b.aux)
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 128.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 128.
-
-
-Package rerunfilecheck Warning: File `amiller68_writeup3b.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `amiller68_writeup3b.out':
-(rerunfilecheck)             Before: 25F4B5598014C48252DF5D18EDC2F1AF;306
-(rerunfilecheck)             After:  D1948D4BB407DC0897D576C3CA2B3779;523.
+Package rerunfilecheck Info: File `amiller68_writeup3b.out' has not changed.
+(rerunfilecheck)             Checksum: 1B3A3D347BA9D27AAF00F500AEACE4CC;768.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 128.
  ) 
 Here is how much of TeX's memory you used:
- 7455 strings out of 483107
- 111185 string characters out of 5964630
- 375799 words of memory out of 5000000
- 22310 multiletter control sequences out of 15000+600000
- 541748 words of font info for 60 fonts, out of 8000000 for 9000
+ 7379 strings out of 483107
+ 109981 string characters out of 5964630
+ 375802 words of memory out of 5000000
+ 22249 multiletter control sequences out of 15000+600000
+ 541580 words of font info for 59 fonts, out of 8000000 for 9000
  59 hyphenation exceptions out of 8191
  34i,6n,31p,911b,503s stack positions out of 5000i,500n,10000p,200000b,80000s
  </home/alex/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600p
@@ -595,12 +557,11 @@ ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/tex
 mf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist
 /fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/
 type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
-/amsfonts/cm/cmtt10.pfb>
-Output written on amiller68_writeup3b.pdf (4 pages, 122164 bytes).
+public/amsfonts/cm/cmti10.pfb>
+Output written on amiller68_writeup3b.pdf (8 pages, 604315 bytes).
 PDF statistics:
- 99 PDF objects out of 1000 (max. 8388607)
- 80 compressed objects within 1 object stream
- 14 named destinations out of 1000 (max. 500000)
- 49 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 143 PDF objects out of 1000 (max. 8388607)
+ 110 compressed objects within 2 object streams
+ 20 named destinations out of 1000 (max. 500000)
+ 114 words of extra memory for PDF output out of 10000 (max. 10000000)
 

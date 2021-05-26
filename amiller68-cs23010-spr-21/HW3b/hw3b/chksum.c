@@ -3,6 +3,7 @@
 #include "lib/queue.h"
 //#include "lib/lock.h"
 #include "lib/fingerprint.h"
+#include "lib/stopwatch.h"
 #include <time.h>
 #include <stdbool.h>
 #include <pthread.h>
@@ -30,12 +31,12 @@ long chksum_serial(PacketSource_t *packet_source, volatile Packet_t * (* packet_
 
     if (!correct)
     {
+        /* Timed Flag Dispatcher
         volatile bool *done = (volatile bool *) malloc(sizeof(bool));
         *done = false;
 
         start_timed_flag(done, M);
 
-        /*Dispatcher*/
         while(!*done)
         {
             packet = (*packet_method)(packet_source, i);
@@ -43,6 +44,23 @@ long chksum_serial(PacketSource_t *packet_source, volatile Packet_t * (* packet_
             through_count++;
             free((void*)packet);
             i = (i + 1) % n;
+        }*/
+
+        /* Stopwatch Dispatcher */
+        StopWatch_t sw;
+        double time, runtime;
+        runtime = (double) M;
+        time = 0.0;
+        startTimer(&sw);
+        while(time < runtime)
+        {
+            packet = (*packet_method)(packet_source, i);
+            getFingerprint(packet->iterations, packet->seed);
+            through_count++;
+            free((void*)packet);
+            i = (i + 1) % n;
+            stopTimer(&sw);
+            time = getElapsedTime(&sw);
         }
     }
 
@@ -128,9 +146,9 @@ long chksum_parallel(PacketSource_t *packet_source, volatile Packet_t * (* packe
 
     if (!correct)
     {
-        start_timed_flag(done, M);
+        /*Timed Flag Dispatcher
 
-        /*Dispatcher*/
+        start_timed_flag(done, M);
 
         while(!*done)
         {
@@ -147,7 +165,37 @@ long chksum_parallel(PacketSource_t *packet_source, volatile Packet_t * (* packe
                 pthread_yield();
             }
             i = (i + 1) % N;
+        }*/
+
+
+        /*Stopwatch Dispatcher*/
+        StopWatch_t sw;
+        double time, runtime;
+        runtime = (double) M;
+        time = 0.0;
+        startTimer(&sw);
+        while(time < runtime)
+        {
+            packet = (*packet_method)(packet_source, i);
+            //printf("Enqueuing packet_id = %p in Queue-%d...\n", packet, i);
+            while(enq(&Q_pool[i], packet))
+            {
+                if(time < runtime)
+                {
+                    //printf("Freeing last, unused packet\n");
+                    free((void*)packet);
+                    break;
+                }
+                stopTimer(&sw);
+                time = getElapsedTime(&sw);
+                pthread_yield();
+            }
+            stopTimer(&sw);
+            time = getElapsedTime(&sw);
+            pthread_yield();
+            i = (i + 1) % N;
         }
+        *done = true;
     }
 
     else

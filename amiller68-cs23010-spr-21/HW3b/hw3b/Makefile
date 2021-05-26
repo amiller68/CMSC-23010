@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -O3 -Wno-unused-variable -pthread
-OBJS = chksum.o queue.o lock.o packetsource.o crc32.o generators.o fingerprint.o
+OBJS = chksum.o queue.o lock.o stopwatch.o packetsource.o crc32.o generators.o fingerprint.o
 TARGETS = serial parallel
 LDLIBS  = -lm
 
@@ -26,6 +26,9 @@ queue.o: queue.c lib/queue.h
 
 lock.o: lock.c lib/lock.h
 	$(CC) $(CFLAGS) -c lock.c
+
+stopwatch.o: stopwatch.c lib/stopwatch.h
+	$(CC) $(CFLAGS) -c stopwatch.c
 
 packetsource.o: packetsource.c lib/packetsource.h
 	$(CC) $(CFLAGS) -c packetsource.c

@@ -13,7 +13,7 @@ L = ['p', 'a']
 
 overhead_data = pd.read_csv("exp_data/overhead.csv")
 
-fig = plt.figure(figsize = (10,10))
+fig = plt.figure(figsize = (15,15))
 
 #Extract Relevant data from CSV
 p_data = overhead_data[overhead_data["L"] == 'p']
@@ -27,7 +27,9 @@ plt.xlabel('W')
 plt.ylabel('Speedup (Lock-Free throughput / Home-Queue throughput)')
 plt.title('Idle Lock Overhead: M = 2000 ms, N = 1, U = t, D = 8')
 plt.xticks(ind + width / 2, W)
-plt.yticks(np.arange(0, 2, 0.1))
+plt.yticks(np.arange(0.0, 1.5, 0.1))
+plt.ylim([0, 1.5])
+
 
 plt.bar(ind, p_speedup, width, color='royalblue', label = 'Mutex')
 
@@ -81,7 +83,7 @@ for u in U:
             Comp_data = A_data
 
         #Define a figure to hold a graph for each value of W
-        fig, axs = plt.subplots(2, 2, figsize=(10,10))
+        fig, axs = plt.subplots(2, 2, figsize=(15,15))
 
         #Set a Figure title
         fig.suptitle('Speedup Results: Load = ' + packet_method + ', Comparison Strategy = ' + strategy)
@@ -91,6 +93,10 @@ for u in U:
             ax.set(xlabel='Number of Threads (N)', ylabel='Speedup (Parallel throughput / Serial throughput)')
             ax.set_xticks(N)
             ax.set_xlim([0, 30])
+            ax.set_yticks(np.arange(0, 13.5, 0.5))
+            ax.set_ylim([0, 13.5])
+            ax.axhline(y=1.0, color='r', linestyle='--', label = "Serial Performance")
+
 
         # Hide x labels and tick labels for top plots and y ticks for right plots.
         for ax in axs.flat:
