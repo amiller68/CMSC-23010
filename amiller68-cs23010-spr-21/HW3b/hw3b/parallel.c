@@ -2,6 +2,8 @@
 #include <stdlib.h>
 
 #include "lib/chksum.h"
+#include <stdbool.h>
+
 
 /*
  * parallel.c - generate the checksums for packets originating from N sources for M ms
@@ -27,7 +29,7 @@
  int main(int argc, char *argv[])
  {
      //If less than 8 arguments supplied
-     if (argc != 9)
+     if (argc < 9)
      {
          printf("ERR: Inappropriate amount of arguments supplied\n");
          exit(1);
@@ -41,6 +43,11 @@
      int D = atoi(argv[6]);
      char L = *argv[7];
      char S = *argv[8];
+     bool correct = false;
+     if (argc > 9)
+     {
+         correct = true;
+     }
 
      volatile Packet_t * (*packet_method)(PacketSource_t *, int);
      switch(U)
@@ -62,7 +69,7 @@
      //printf("Making packet source...\n");
      PacketSource_t *packet_source = createPacketSource(W, n, s);
      //printf("Running test...\n");
-     through_count = chksum_parallel(packet_source, packet_method, n, M, D, L, S);
+     through_count = chksum_parallel(packet_source, packet_method, n, M, D, L, S, correct);
 
      printf("%ld \n", through_count);
 

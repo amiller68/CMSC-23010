@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "lib/chksum.h"
-#include "lib/stopwatch.h"
+#include <stdbool.h>
 
 /*
  * serial.c - generate the checksums for packets originating from N sources for M ms
@@ -22,7 +22,7 @@
 int main(int argc, char *argv[])
 {
     //If less than 5 arguments supplied
-    if (argc != 6)
+    if (argc < 6)
     {
         printf("ERR: Inappropriate amount of arguments supplied\n");
         exit(1);
@@ -33,6 +33,11 @@ int main(int argc, char *argv[])
     int W = atoi(argv[3]);
     char U = *argv[4];
     short s = atoi(argv[5]);
+    bool correct = false;
+    if (argc > 6)
+    {
+        correct = true;
+    }
 
     volatile Packet_t * (*packet_method)(PacketSource_t *, int);
     switch(U)
@@ -54,7 +59,7 @@ int main(int argc, char *argv[])
     //printf("Making packet source...\n");
     PacketSource_t *packet_source = createPacketSource(W, n, s);
     //printf("Running test...\n");
-    through_count = chksum_serial(packet_source, packet_method, n, M);
+    through_count = chksum_serial(packet_source, packet_method, n, M, correct);
 
     printf("%ld \n", through_count);
 

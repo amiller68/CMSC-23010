@@ -18,7 +18,7 @@ typedef struct packet_queue {
     volatile bool *done;
 
     //A non-specific shared integer for queue pools
-    int *N;
+    int N;
 
     lock_t *L;
 
@@ -33,7 +33,7 @@ int destroy_queue_pool(int size, packet_queue_t * Q_pool);
 
 int destroy_packet_queue(packet_queue_t *Q);
 
-void clear_queue(packet_queue_t *Q);
+long clear_queue(packet_queue_t *Q, bool correct);
 
 int enq(packet_queue_t *Q, volatile Packet_t *packet);
 

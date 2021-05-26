@@ -2,6 +2,8 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "lib/fingerprint.h"
+
 
 packet_queue_t *new_packet_queue(int D)
 {
@@ -40,8 +42,6 @@ packet_queue_t *create_queue_pool(int num_q, int D, char L, int n)
     packet_queue_t *Q_pool = (packet_queue_t *) malloc(num_q * sizeof(packet_queue_t));
     lock_t *L_pool = new_lock_pool(num_q, L, n);
     volatile bool *done = (volatile bool *) malloc(sizeof(volatile bool));
-    int *N = (int *) malloc(sizeof(int));
-    *N = num_q;
     *done = false;
 
     if (!Q_pool)
@@ -68,21 +68,26 @@ packet_queue_t *create_queue_pool(int num_q, int D, char L, int n)
         Q_pool[i].D = D;
         Q_pool[i].L = &L_pool[i];
         Q_pool[i].done = done;
-        Q_pool[i].N = N;
+        Q_pool[i].N = num_q;
         Q_pool[i].through_count = 0;
     }
 
     return Q_pool;
 }
 
-void clear_queue(packet_queue_t *Q)
+long clear_queue(packet_queue_t *Q, bool correct)
 {
+    long count = 0;
     volatile Packet_t *packet;
     while((packet = deq(Q)) != NULL)
     {
+        if (correct)
+        {
+            count += getFingerprint(packet->iterations, packet->seed);
+        }
         free((void*)packet);
     }
-    return;
+    return count;
 }
 
 
@@ -102,7 +107,7 @@ int destroy_packet_queue(packet_queue_t *Q)
     {
         if (Q->packets)
         {
-            clear_queue(Q);
+            clear_queue(Q, false);
             free(Q->packets);
         }
         free(Q);
