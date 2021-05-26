@@ -310,7 +310,8 @@ void *H_worker(void *args)
 //perhaps adding N and T as args can be helpful
 void *A_worker(void *args)
 {
-    packet_queue_t *Q = (packet_queue_t *) args;
+    packet_queue_t *HQ = (packet_queue_t *) args; //define a home queue
+    packet_queue_t *Q = HQ;
     volatile bool *done = Q->done; // a pointer to a shared flag
     int N = Q->N; //How many queues are in this pool?
     int i = Q->i; //The threads initial index into the queue_pool
@@ -336,7 +337,7 @@ void *A_worker(void *args)
                 free((void*)packet);
                 if (!*done)
                 {
-                    __sync_fetch_and_add(&Q->through_count, 1);
+                    HQ->through_count++;
                 }
             }
         }
@@ -466,7 +467,7 @@ void *A_worker_test(void *args)
             //printf("[%ld] - Succesfully operated on packet, but not on time!\n", pthread_self());
             return NULL;
         }
-    
+
         /*Move on to the next Queue*/
         i = (i + 1) % N; //Update i
         Q = &Q_pool[i];   //Update Q
