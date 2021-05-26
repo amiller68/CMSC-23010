@@ -334,19 +334,15 @@ void *A_worker(void *args)
                 //printf("[%ld] - Got a packet!\n", pthread_self());
                 getFingerprint(packet->iterations, packet->seed);
                 free((void*)packet);
+                if (!*done)
+                {
+                    __sync_fetch_and_add(&Q->through_count, 1);
+                }
             }
-
-            if (*done)
-            {
-                //printf("[%ld] - Succesfully operated on packet, but not on time!\n", pthread_self());
-                return NULL;
-            }
-            __sync_fetch_and_add(&Q->through_count, 1);
         }
 
         if (*done)
         {
-            //printf("[%ld] - Succesfully operated on packet, but not on time!\n", pthread_self());
             return NULL;
         }
 
@@ -457,19 +453,20 @@ void *A_worker_test(void *args)
             if (packet)
             {
                 //printf("[%ld] - Got a packet!\n", pthread_self());
-                res = getFingerprint(packet->iterations, packet->seed);
+                res = getFingerprint(packet->iterations, packet->seed);\
+                //Always increment the shared checksum
                 __sync_fetch_and_add(&Q->through_count, res);
                 free((void*)packet);
             }
-
-            //Exit if the queue is empty and done is signalled -- all threads should eventuall exit
-            else if (*done)
-            {
-                //printf("[%ld] - Succesfully operated on packet, but not on time!\n", pthread_self());
-                return NULL;
-            }
         }
 
+        //Exit if the queue is empty and done is signalled -- all threads should eventuall exit
+        if (*done)
+        {
+            //printf("[%ld] - Succesfully operated on packet, but not on time!\n", pthread_self());
+            return NULL;
+        }
+    
         /*Move on to the next Queue*/
         i = (i + 1) % N; //Update i
         Q = &Q_pool[i];   //Update Q
