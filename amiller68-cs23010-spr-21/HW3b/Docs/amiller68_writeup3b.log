@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.1.23)  26 MAY 2021 18:01
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.1.23)  27 MAY 2021 10:43
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -530,16 +530,23 @@ Underfull \hbox (badness 10000) in paragraph at lines 122--123
  []
 
 [7 <./graphs/speedup_t:A.png>]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 128.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 126.
  [8 <./graphs/speedup_f:A.png>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 128.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 126.
 
 (./amiller68_writeup3b.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 128.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 128.
-Package rerunfilecheck Info: File `amiller68_writeup3b.out' has not changed.
-(rerunfilecheck)             Checksum: 1B3A3D347BA9D27AAF00F500AEACE4CC;768.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 128.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 126.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 126.
+
+
+Package rerunfilecheck Warning: File `amiller68_writeup3b.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `amiller68_writeup3b.out':
+(rerunfilecheck)             Before: 1B3A3D347BA9D27AAF00F500AEACE4CC;768
+(rerunfilecheck)             After:  5350B5C8EF1C6E92C4128405609D398F;724.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 126.
  ) 
 Here is how much of TeX's memory you used:
  7379 strings out of 483107
@@ -549,16 +556,19 @@ Here is how much of TeX's memory you used:
  541580 words of font info for 59 fonts, out of 8000000 for 9000
  59 hyphenation exceptions out of 8191
  34i,6n,31p,911b,503s stack positions out of 5000i,500n,10000p,200000b,80000s
- </home/alex/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600p
-k></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></us
-r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/shar
-e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texl
-ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist
-/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmti10.pfb>
-Output written on amiller68_writeup3b.pdf (8 pages, 604315 bytes).
+pdfTeX warning (dest): name{section*.11} has been referenced but does not exi
+st, replaced by a fixed one
+
+ </home/alex/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600pk>
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/
+share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/
+texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texliv
+e/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/f
+onts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/pu
+blic/amsfonts/cm/cmti10.pfb>
+Output written on amiller68_writeup3b.pdf (8 pages, 604251 bytes).
 PDF statistics:
  143 PDF objects out of 1000 (max. 8388607)
  110 compressed objects within 2 object streams

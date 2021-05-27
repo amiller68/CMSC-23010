@@ -8,21 +8,18 @@
 
 /*A struct describing a packet queue*/
 typedef struct packet_queue {
-    int i;
     volatile int head, tail;
-    int D;
+    int i, D, N;
+    long through_count;
+
     //A pointer to a * Packet_t array
     volatile Packet_t **packets;
 
     //A pointer to a flag
     volatile bool *done;
 
-    //A non-specific shared integer for queue pools
-    int N;
-
     lock_t *L;
 
-    long through_count;
 } packet_queue_t;
 
 packet_queue_t *new_packet_queue(int D);

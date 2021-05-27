@@ -165,7 +165,7 @@ long chksum_parallel(PacketSource_t *packet_source, volatile Packet_t * (* packe
                 pthread_yield();
             }
             i = (i + 1) % N;
-        }*/
+        }
 
 
         /*Stopwatch Dispatcher

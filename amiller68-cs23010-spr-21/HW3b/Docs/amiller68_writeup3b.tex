@@ -101,7 +101,7 @@ I have made the following addresses changes to my project's design, broken down 
 \subsection{Changes to Test plan:}
 As mentioned above, I will not try to verify if my Awesome load balancing strategy is strictly consistent with my serial implementation. As the Awesome strategy doesn't map worker threads to queue, the possibility remains that the threads exit our correctness testing implementation prior to generating checksums for all generated packets. As such, worker threads themselves might not generate an amalgamated checksum that is consistent $chksum\_serial()$. This discrepancy is mitigated by the use of $clear\_queue()$. For now, I am deeming this a sufficient test of correctness for my Awesome load balancing strategy. To desire more would mean having to alter the structure of the strategy as to make it a non-meaningful test of correctness.
 \section{Results}
-As of writing this, $correct\_test\_script.sh$ confirms that my implementations are consistent.
+As of writing this, $correct\_test\_script.sh$ confirms that my implementations are consistent. Moreover, testing revealed that while timing my implementation using the StopWatch\_t type was inconsistent, my timed flag implementation was consistent; For M = 2000 ms, test\_script.sh should complete after ~80 minutes. When using stopwatch based dispatchers, the script did not complete its task within 90 minutes; when using my timed flag, the test script completed its run in at most 82 minutes.
 \\\\
 The raw performance data for the Idle Lock Overhead and Speedup tests are stored in a folder called $HW3b/hw3b/exp\_data$. This folder contains the .csv files that describe performance data for a given experiment. overhead.csv describes the data from experiment 1. speedup.csv contains all other necessary data
 \\
@@ -118,11 +118,45 @@ I took this data and plotted it using the script analyze.py. These graphs are st
 \includegraphics[scale=0.5]{graphs/speedup_f:H.png}\\
 \subsection{Experiment 4: Speedup with Uniform Load (Awesome Test)}
 \includegraphics[scale=0.5]{graphs/speedup_t:A.png}\\
-\subsection{Experiment 5: Speedup with Exponential Load (Awesome Test}
+\subsection{Experiment 5: Speedup with Exponential Load (Awesome Test)}
 \includegraphics[scale=0.5]{graphs/speedup_f:A.png}\\
 
 \section{Analysis}
 
-\section{Theory}
+\subsection{Idle Lock Overhead:}
+The purpose of this test is to measure the overhead of using locks in the HomeQueue strategy in comparison to the LockFree strategy. Between these two strategies, we should expect the HomeQueue strategy to entail greater overhead in its use of a lock around the worker thread's invocation of $dequeue()$. This follows from our observations in HW3a -- in our counter tests, for $n = 1$, both the Mutex lock and Anderson's lock displayed 10x slowdown over ideal, LockFree performance.
+\\
+However, for larger values of $W$, we should expect the relative overhead of HomeQueue over LockFree to decrease. This follows from our observations in HW2 -- larger values of $W$ entailed longer packet processing times, which gave more opportunities for parallelism and speedup. In this case, larger values of $W$ will otherwise outweigh the increased overhead entailed in acquiring locks, reducing the relative overhead of HomeQueue over LockFree.
+\\
+As to the relative performance of these tests across the use of our different locks: both the Mutex and our Anderson locks showed similar performance for use with a single acquiring thread. Therefore we should expect similar curves from our uses of these locks.
+
+\subsection{Speedup with Uniform Load:}
+Larger values of $W$ imply more opportunity to parallelize the computation of checksums, for a given value of $n$. Therefore, while using both our LockFree and HomeQueue strategies,  we should expect increased speedup of parallel.c over serial.c for greater values of $W$. The same might be said for larger values of $n$ given a fixed value for $W$, in the sense that a greater number of worker threads might be able to work together more efficiently than a single thread. However, larger values of $n$ also imply larger amounts of overhead in managing threads and queues. Furthermore, the once $n$ exceeds the number of cores, we can expect to see drop offs in speedup, as observed in our results for HW2.
+\\\\
+Therefore, in comparing the observed speedup for different values of $W$, we should expect increased speedup for larger values of $W$. For a given value of $W$, we should expect to see greater speedup for greater values of $n$ -- as observed in the results for HW2, we can expect speedup to appear linear large enough values of $W$ and $n \leq 13$. However, this is accompanied by diminishing returns on speedup for larger values of $n$, especially $n > 13$.
+\\\\
+Between load balancing strategies, we should expect to see consistently faster performance from LockFree, as opposed to HomeQueue, due to the overhead entailed in using locks. We should expect to see levels of overhead similar to those of the previous experiment, as, though there are $n$ worker threads to consider and manage, each lock used by the threads is uncontested. Likewise, between the use of Mutex and Anderson's locks, we should expect to see similar levels of performance for this same reason.
+
+
+\subsection{Speedup with Exponential Load:}
+We adopt the same reasoning from the prior experiment. However, because we employ a exponential packet generator, the amount of work each thread must perform is constantly increasing at an exponential rate. This may make it seem like we should experience even greater opportunities for speedup even as we continue to process packets. However, as different sources generate packets with different curves that describe the work needed to generate a checksum for the $i$-th packet, all of which merely share an average amount of work, this leaves the possibility of some queues becoming overburdened with large packets as the test goes on, creating performance bottlenecks. Therefore, while greater values of $W$ should entail greater opportunities for speedup, without load balancing, this effect will not be as noticeable as when using an Uniform packet generator.
+\\\\
+Like the previous experiment, in comparing the observed speedup for different values of $W$, we should expect increased speedup for larger values of $W$. For a given value of $W$, we should expect to see greater speedup for greater values of $n$ -- as observed in the results for HW2, we can expect speedup to appear linear for large enough values of $W$ and $n \leq 13$. However, this is accompanied by diminishing returns on speedup for larger values of $n$, especially $n > 13$.
+\\\\
+Likewise, we should expect to see consistently faster performance from LockFree, as opposed to HomeQueue, due to the overhead entailed in using locks. We should expect to see levels of overhead similar to those of the previous experiment, as, though there are $n$ worker threads to consider and manage, each lock used by the threads is uncontested. Likewise, between the use of Mutex and Anderson's locks, we should expect to see similar levels of performance for this same reason. We may expect to see less overall slowdown of HomeQueue over LockFree in this experiment, as the bottlenecks posed by exponential packets without load balancing may mitigate overhead.
+
+
+\subsection{Speedup with Uniform Load (Awesome Test)}
+
+\subsection{Speedup with Exponential Load (Awesome Test)}
+\subsection{Speedup with Awesome}
+For my final experiment, I propose to redo the prior experiment but using $S \in \{LockFree, Awesome\}$.
+\\\\
+Like the previous experiment, in comparing the observed speedup for different values of $W$, we should expect increased speedup for larger values of $W$. For a given value of $W$, we should expect to see greater speedup for greater values of $n$ -- as observed in the results for HW2, we can expect speedup to appear linear for large enough values of $W$ and $n \leq 13$. However, this is accompanied by diminishing returns on speedup for larger values of $n$, especially $n > 13$.
+\\\\
+Unlike the previous experiment, while the speedup of our LockFree implementation will suffer due to the use of an exponential packet generator, the speedup of our Awesome implementation  will not. Rather, because worker threads are able to search for work to do, they can alleviate uneven burdens put on the implementation's various queues. This is the situation under which the Awesome strategy should succeed; otherwise, if there was an even distribution of work among queues, there would be no performance to be gained from making threads search for work. In this test then, the Awesome strategy will outperform the LockFree strategy.
+\\
+This increase in performance from load balancing, however, will be mitigated because locks can now be in contention among different worker threads, they can be a greater source of slowdown than they were when used in the HomeQueue strategy. Performance between the two locks, however, should be similar, if not with the Mutex lock performing a bit better -- this is confirmed by our curves from HW3a, Experiment 2. Furthermore, there are even more calls to lock() and unlock() in the Awesome strategy than in the HomeQueue strategy, suggesting increased levels of overhead. 
+
 	
 \end{document}
