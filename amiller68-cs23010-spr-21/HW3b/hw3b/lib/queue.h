@@ -15,8 +15,8 @@ typedef struct packet_queue {
     //A pointer to a * Packet_t array
     volatile Packet_t **packets;
 
-    //A pointer to a flag
-    volatile bool *done;
+    // a flag
+    volatile bool done;
 
     lock_t *L;
 
