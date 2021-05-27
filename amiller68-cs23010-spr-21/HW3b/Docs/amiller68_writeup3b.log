@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.1.23)  27 MAY 2021 10:43
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.1.23)  27 MAY 2021 18:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -450,7 +450,7 @@ Overfull \hbox (28.76004pt too wide) in paragraph at lines 104--113
 ML/cmm/m/it/10 b=Docs=graphs$\OT1/cmr/m/n/10 .
  []
 
-<graphs/overhead.png, id=66, 1084.05pt x 1084.05pt>
+<graphs/overhead.png, id=74, 1084.05pt x 1084.05pt>
 File: graphs/overhead.png Graphic file (type png)
 <use graphs/overhead.png>
 Package pdftex.def Info: graphs/overhead.png  used on input line 114.
@@ -466,7 +466,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 114--115
  []
 
 [3]
-<graphs/speedup_t:H.png, id=72, 1084.05pt x 1084.05pt>
+<graphs/speedup_t:H.png, id=80, 1084.05pt x 1084.05pt>
 File: graphs/speedup_t:H.png Graphic file (type png)
 <use graphs/speedup_t:H.png>
 Package pdftex.def Info: graphs/speedup_t:H.png  used on input line 116.
@@ -482,7 +482,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 116--117
  []
 
 [4 <./graphs/overhead.png>]
-<graphs/speedup_f:H.png, id=78, 1084.05pt x 1084.05pt>
+<graphs/speedup_f:H.png, id=86, 1084.05pt x 1084.05pt>
 File: graphs/speedup_f:H.png Graphic file (type png)
 <use graphs/speedup_f:H.png>
 Package pdftex.def Info: graphs/speedup_f:H.png  used on input line 118.
@@ -498,10 +498,10 @@ Underfull \hbox (badness 10000) in paragraph at lines 118--119
  []
 
 [5 <./graphs/speedup_t:H.png>]
-<graphs/speedup_t:A.png, id=84, 1084.05pt x 1084.05pt>
-File: graphs/speedup_t:A.png Graphic file (type png)
-<use graphs/speedup_t:A.png>
-Package pdftex.def Info: graphs/speedup_t:A.png  used on input line 120.
+<graphs/speedup_f:A.png, id=92, 1084.05pt x 1084.05pt>
+File: graphs/speedup_f:A.png Graphic file (type png)
+<use graphs/speedup_f:A.png>
+Package pdftex.def Info: graphs/speedup_f:A.png  used on input line 120.
 (pdftex.def)             Requested size: 542.02368pt x 542.02368pt.
 
 Overfull \hbox (70.5512pt too wide) in paragraph at lines 120--121
@@ -514,64 +514,76 @@ Underfull \hbox (badness 10000) in paragraph at lines 120--121
  []
 
 [6 <./graphs/speedup_f:H.png>]
-<graphs/speedup_f:A.png, id=90, 1084.05pt x 1084.05pt>
-File: graphs/speedup_f:A.png Graphic file (type png)
-<use graphs/speedup_f:A.png>
-Package pdftex.def Info: graphs/speedup_f:A.png  used on input line 122.
-(pdftex.def)             Requested size: 542.02368pt x 542.02368pt.
-
-Overfull \hbox (70.5512pt too wide) in paragraph at lines 122--123
-[] 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 122--123
+Underfull \hbox (badness 10000) in paragraph at lines 125--148
 
  []
 
-[7 <./graphs/speedup_t:A.png>]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 126.
- [8 <./graphs/speedup_f:A.png>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 126.
 
-(./amiller68_writeup3b.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 126.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 126.
+Underfull \hbox (badness 10000) in paragraph at lines 125--148
+
+ []
 
 
-Package rerunfilecheck Warning: File `amiller68_writeup3b.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
+Underfull \hbox (badness 10000) in paragraph at lines 125--148
 
-Package rerunfilecheck Info: Checksums for `amiller68_writeup3b.out':
-(rerunfilecheck)             Before: 1B3A3D347BA9D27AAF00F500AEACE4CC;768
-(rerunfilecheck)             After:  5350B5C8EF1C6E92C4128405609D398F;724.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 126.
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 125--148
+
+ []
+
+[7 <./graphs/speedup_f:A.png>] [8]
+Underfull \hbox (badness 10000) in paragraph at lines 149--159
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 162--170
+
+ []
+
+[9]
+Underfull \hbox (badness 10000) in paragraph at lines 172--181
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 172--181
+
+ []
+
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 183.
+[10]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 183.
+ (./amiller68_writeup3b.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 183.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 183.
+Package rerunfilecheck Info: File `amiller68_writeup3b.out' has not changed.
+(rerunfilecheck)             Checksum: 02AD530680DF01CA3DB64F098A18633E;935.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 183.
  ) 
 Here is how much of TeX's memory you used:
  7379 strings out of 483107
- 109981 string characters out of 5964630
- 375802 words of memory out of 5000000
- 22249 multiletter control sequences out of 15000+600000
+ 109898 string characters out of 5964630
+ 378805 words of memory out of 5000000
+ 22246 multiletter control sequences out of 15000+600000
  541580 words of font info for 59 fonts, out of 8000000 for 9000
  59 hyphenation exceptions out of 8191
  34i,6n,31p,911b,503s stack positions out of 5000i,500n,10000p,200000b,80000s
-pdfTeX warning (dest): name{section*.11} has been referenced but does not exi
-st, replaced by a fixed one
-
- </home/alex/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600pk>
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/
-share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/
-texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texliv
-e/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf
--dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/f
-onts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/ty
-pe1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/pu
-blic/amsfonts/cm/cmti10.pfb>
-Output written on amiller68_writeup3b.pdf (8 pages, 604251 bytes).
+ </home/alex/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600p
+k></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></us
+r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/shar
+e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/
+public/amsfonts/cm/cmti10.pfb>
+Output written on amiller68_writeup3b.pdf (10 pages, 524321 bytes).
 PDF statistics:
- 143 PDF objects out of 1000 (max. 8388607)
- 110 compressed objects within 2 object streams
- 20 named destinations out of 1000 (max. 500000)
- 114 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 157 PDF objects out of 1000 (max. 8388607)
+ 124 compressed objects within 2 object streams
+ 24 named destinations out of 1000 (max. 500000)
+ 125 words of extra memory for PDF output out of 10000 (max. 10000000)
 
