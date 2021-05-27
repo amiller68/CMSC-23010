@@ -31,7 +31,7 @@ long chksum_serial(PacketSource_t *packet_source, volatile Packet_t * (* packet_
 
     if (!correct)
     {
-        /* Timed Flag Dispatcher
+        /* Timed Flag Dispatcher*/
         volatile bool *done = (volatile bool *) malloc(sizeof(bool));
         *done = false;
 
@@ -44,9 +44,9 @@ long chksum_serial(PacketSource_t *packet_source, volatile Packet_t * (* packet_
             through_count++;
             free((void*)packet);
             i = (i + 1) % n;
-        }*/
+        }
 
-        /* Stopwatch Dispatcher */
+        /* Stopwatch Dispatcher
         StopWatch_t sw;
         double time, runtime;
         runtime = (double) M;
@@ -61,7 +61,7 @@ long chksum_serial(PacketSource_t *packet_source, volatile Packet_t * (* packet_
             i = (i + 1) % n;
             stopTimer(&sw);
             time = getElapsedTime(&sw);
-        }
+        }*/
     }
 
     else
@@ -146,7 +146,7 @@ long chksum_parallel(PacketSource_t *packet_source, volatile Packet_t * (* packe
 
     if (!correct)
     {
-        /*Timed Flag Dispatcher
+        /*Timed Flag Dispatcher*/
 
         start_timed_flag(done, M);
 
@@ -168,7 +168,7 @@ long chksum_parallel(PacketSource_t *packet_source, volatile Packet_t * (* packe
         }*/
 
 
-        /*Stopwatch Dispatcher*/
+        /*Stopwatch Dispatcher
         StopWatch_t sw;
         double time, runtime;
         runtime = (double) M;
@@ -195,7 +195,7 @@ long chksum_parallel(PacketSource_t *packet_source, volatile Packet_t * (* packe
             pthread_yield();
             i = (i + 1) % N;
         }
-        *done = true;
+        *done = true;*/
     }
 
     else
