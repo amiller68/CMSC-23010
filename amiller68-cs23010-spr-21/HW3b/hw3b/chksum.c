@@ -32,7 +32,7 @@ long chksum_serial(PacketSource_t *packet_source, volatile Packet_t * (* packet_
     if (!correct)
     {
         /* Timed Flag Dispatcher*/
-        volatile bool *done = (volatile bool *) malloc(sizeof(bool));
+        volatile bool *done = (volatile bool *) malloc(sizeof(volatile bool));
         *done = false;
 
         start_timed_flag(done, M);
@@ -135,7 +135,7 @@ long chksum_parallel(PacketSource_t *packet_source, volatile Packet_t * (* packe
             return -1;
     }
 
-    volatile bool *done = Q_pool[0].done;
+    volatile bool *done = (volatile bool *) malloc(sizeof(volatile bool));
 
     for (i = 0; i < N; i++)
     {
@@ -220,7 +220,13 @@ long chksum_parallel(PacketSource_t *packet_source, volatile Packet_t * (* packe
             i++;
         }
         //Set the threads to terminate
-        *done = true;
+    }
+
+    /*Signal Threads to wrap up ...*/
+    for (i = 0; i < N; i++)
+    {
+        //printf("Joining thread-%d\n", i);
+        Q_pool[i].done = true;
     }
 
 
@@ -275,7 +281,7 @@ void start_timed_flag(volatile bool *flag, int M)
 void *L_worker(void *args)
 {
     packet_queue_t *Q = (packet_queue_t *) args;
-    volatile bool *done = Q->done;
+    //volatile bool *done = &Q->done;
     volatile Packet_t *packet;
     //printf("[%ld] - Starting thread...\n", pthread_self());
     //printf("Started L_worker: thread-%ld\n", pthread_self());
@@ -285,7 +291,7 @@ void *L_worker(void *args)
         while((packet = deq(Q)) == NULL)
         {
             //printf("Failed to dequeu: thread-%ld\n", pthread_self());
-            if (*done)
+            if (Q->done)
             {
                 //printf("[%ld] - Queue is done!\n", pthread_self());
                 return NULL;
@@ -298,7 +304,7 @@ void *L_worker(void *args)
         getFingerprint(packet->iterations, packet->seed);
         free((void*)packet);
 
-        if (*done)
+        if (Q->done)
         {
             //printf("[%ld] - Succesfully operated on packet, but not on time!\n", pthread_self());
             return NULL;
@@ -313,7 +319,7 @@ void *L_worker(void *args)
 void *H_worker(void *args)
 {
     packet_queue_t *Q = (packet_queue_t *) args;
-    volatile bool *done = Q->done;
+    // volatile bool *done = &Q->done;
     volatile Packet_t *packet;
     lock_t *L = Q->L;
     //printf("[%ld] - Starting thread...\n", pthread_self());
@@ -327,7 +333,7 @@ void *H_worker(void *args)
         {
 
             //printf("Failed to dequeu: thread-%ld\n", pthread_self());
-            if (*done)
+            if (Q->done)
             {
                 L->unlock(L->l);
 
@@ -344,7 +350,7 @@ void *H_worker(void *args)
         getFingerprint(packet->iterations, packet->seed);
         free((void*)packet);
 
-        if (*done)
+        if (Q->done)
         {
             //printf("[%ld] - Succesfully operated on packet, but not on time!\n", pthread_self());
             return NULL;
@@ -355,12 +361,11 @@ void *H_worker(void *args)
     return NULL;
 }
 
-//perhaps adding N and T as args can be helpful
 void *A_worker(void *args)
 {
     packet_queue_t *HQ = (packet_queue_t *) args; //define a home queue
     packet_queue_t *Q = HQ;
-    volatile bool *done = Q->done; // a pointer to a shared flag
+    //volatile bool *done = &Q->done; // a pointer to a shared flag
     int N = Q->N; //How many queues are in this pool?
     int i = Q->i; //The threads initial index into the queue_pool
     packet_queue_t *Q_pool = Q - i; //Get the pointer to start of the queue_pool
@@ -383,14 +388,14 @@ void *A_worker(void *args)
                 //printf("[%ld] - Got a packet!\n", pthread_self());
                 getFingerprint(packet->iterations, packet->seed);
                 free((void*)packet);
-                if (!*done)
+                if (!HQ->done)
                 {
                     HQ->through_count++;
                 }
             }
         }
 
-        if (*done)
+        if (HQ->done)
         {
             return NULL;
         }
@@ -408,7 +413,7 @@ void *A_worker(void *args)
 void *L_worker_test(void *args)
 {
     packet_queue_t *Q = (packet_queue_t *) args;
-    volatile bool *done = Q->done;
+    // volatile bool *done = &Q->done;
     volatile Packet_t *packet;
     long res;
     //printf("[%ld] - Starting thread...\n", pthread_self());
@@ -419,7 +424,7 @@ void *L_worker_test(void *args)
         while((packet = deq(Q)) == NULL)
         {
             //printf("Failed to dequeu: thread-%ld\n", pthread_self());
-            if (*done)
+            if (Q->done)
             {
                 //printf("[%ld] - Queue is done!\n", pthread_self());
                 return NULL;
@@ -440,7 +445,7 @@ void *L_worker_test(void *args)
 void *H_worker_test(void *args)
 {
     packet_queue_t *Q = (packet_queue_t *) args;
-    volatile bool *done = Q->done;
+    // volatile bool *done = &Q->done;
     volatile Packet_t *packet;
     lock_t *L = Q->L;
     long res;
@@ -455,7 +460,7 @@ void *H_worker_test(void *args)
         {
 
             //printf("Failed to dequeu: thread-%ld\n", pthread_self());
-            if (*done)
+            if (Q->done)
             {
                 L->unlock(L->l);
 
@@ -479,8 +484,9 @@ void *H_worker_test(void *args)
 //perhaps adding N and T as args can be helpful
 void *A_worker_test(void *args)
 {
-    packet_queue_t *Q = (packet_queue_t *) args;
-    volatile bool *done = Q->done; // a pointer to a shared flag
+    packet_queue_t *HQ = (packet_queue_t *) args; //define a home queue
+    packet_queue_t *Q = HQ;
+    //volatile bool *done = &Q->done; // a pointer to a shared flag
     int N = Q->N; //How many queues are in this pool?
     int i = Q->i; //The threads initial index into the queue_pool
     packet_queue_t *Q_pool = Q - i; //Get the pointer to start of the queue_pool
@@ -504,13 +510,13 @@ void *A_worker_test(void *args)
                 //printf("[%ld] - Got a packet!\n", pthread_self());
                 res = getFingerprint(packet->iterations, packet->seed);\
                 //Always increment the shared checksum
-                __sync_fetch_and_add(&Q->through_count, res);
+                HQ->through_count += res;
                 free((void*)packet);
             }
         }
 
         //Exit if the queue is empty and done is signalled -- all threads should eventuall exit
-        if (*done)
+        if (HQ->done)
         {
             //printf("[%ld] - Succesfully operated on packet, but not on time!\n", pthread_self());
             return NULL;

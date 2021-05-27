@@ -41,8 +41,8 @@ packet_queue_t *create_queue_pool(int num_q, int D, char L, int n)
     //Block allocate space for our Q structs
     packet_queue_t *Q_pool = (packet_queue_t *) malloc(num_q * sizeof(packet_queue_t));
     lock_t *L_pool = new_lock_pool(num_q, L, n);
-    volatile bool *done = (volatile bool *) malloc(sizeof(volatile bool));
-    *done = false;
+    // volatile bool *done = (volatile bool *) malloc(sizeof(volatile bool));
+    // *done = false;
 
     if (!Q_pool)
     {
@@ -67,7 +67,7 @@ packet_queue_t *create_queue_pool(int num_q, int D, char L, int n)
         Q_pool[i].head = 0;
         Q_pool[i].D = D;
         Q_pool[i].L = &L_pool[i];
-        Q_pool[i].done = done;
+        Q_pool[i].done = false;
         Q_pool[i].N = num_q;
         Q_pool[i].through_count = 0;
     }
