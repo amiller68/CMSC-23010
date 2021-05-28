@@ -12,6 +12,8 @@ W = ['25', '50', '100', '200', '400', '800']
 L = ['p', 'a']
 
 overhead_data = pd.read_csv("exp_data/overhead.csv")
+D = overhead_data['D'][0]
+M = overhead_data['M'][0]
 
 fig = plt.figure(figsize = (15,15))
 
@@ -25,7 +27,7 @@ a_speedup = a_data["Speedup"]
 
 plt.xlabel('W')
 plt.ylabel('Speedup (Lock-Free throughput / Home-Queue throughput)')
-plt.title('Idle Lock Overhead: M = 2000 ms, N = 1, U = t, D = 8')
+plt.title('Idle Lock Overhead: M = ' + str(M) + 'ms, N = 1, U = t, D = '+ str(D))
 plt.xticks(ind + width / 2, W)
 plt.yticks(np.arange(0.0, 1.5, 0.1))
 plt.ylim([0, 1.5])
@@ -39,7 +41,7 @@ plt.legend(loc='best')
 
 plt.axhline(y=1.0, color='r', linestyle='--', label = "Ideal Performance")
 
-plt.savefig('../Docs/graphs/overhead.png')
+plt.savefig('../Docs/graphs/overhead_' + str(D) + '.png')
 plt.clf()
 
 
@@ -57,6 +59,8 @@ lock_type = ""
 strategy = ""
 
 speedup_data  = pd.read_csv("exp_data/speedup.csv")
+D = speedup_data['D'][0]
+M = speedup_data['M'][0]
 
 #Extract Strategy Relevant Data
 L_data = speedup_data[speedup_data["S"] == 'L']
@@ -86,7 +90,7 @@ for u in U:
         fig, axs = plt.subplots(2, 2, figsize=(15,15))
 
         #Set a Figure title
-        fig.suptitle('Speedup Results: Load = ' + packet_method + ', Comparison Strategy = ' + strategy)
+        fig.suptitle(packet_method + ' Packet Distrobution Speedup Results:  M = ' + str(M) + 'ms, U = ' + u + ', D = '+ str(D))
 
 
         for ax in axs.flat:
@@ -134,5 +138,5 @@ for u in U:
         handles, labels = ax.get_legend_handles_labels()
         fig.legend(handles, labels, loc='lower right')
         #plt.legend(loc=1)
-        plt.savefig('../Docs/graphs/speedup_' + u + ':' + s + '.png')
+        plt.savefig('../Docs/graphs/speedup_' + u + ':' + s +  ':' + str(D) + '.png')
         plt.clf()

@@ -84,6 +84,7 @@ I have made the following addresses changes to my project's design, broken down 
 		long clear\_queue(packet\_queue\_t *Q, bool correct) 
 		\\\\
 		This method frees any packets in a queue -- it is used to cleanup allocated system resources. If $correct = true$, then it also generate an amalgamated checksum for the packets left in a queue and returns this value. Otherwise it merely returns $0$ 
+		\item My original design incorporated a volatile pointer to a boolean that was used to synchronize the exit of worker threads operating off of a queue pool. However this approach proved undesirable -- it seemed to detract from multi core performance. Therefore, my design is more similar to that for HW2 in that each queue has a volatile boolean which is used to signal a thread's closing. As such, $packet\_queue\_t$ no longer contains the member $volatile bool *done$, but $volatile bool done$.
 	\end{itemize}
 	\item Lock data structure (lock.c)
 	\begin{itemize}
@@ -93,7 +94,7 @@ I have made the following addresses changes to my project's design, broken down 
 	\begin{itemize}
 		\item I neglected to state that I would vary trial numbers based on the type of packet generator specified by an experiment. Trials using a uniform packet generator will still utilize 5 trials. Trials using an exponential packet generator, however, will utilize 11 trials.
 		\item Additionally, I will include another file, $correct\_test\_script.sh$, which utilizes the optional correctness testing scheme I described above. This script will verify that amalgamated checksums are consistent across $chksum\_serial()$ and $chksum\_parallel()$, for all load balancing strategies.
-		\item Finally, I also want to test my Awesome load balancing on Uniform packets. I will therefore redo Experiment 2: Speedup with Uniform Load, but instead of using the HomeQueue strategy I will use my new Awesome strategy, in addition to my other tests. 
+		\item Rather than the queue depth of 8 specified in the assignment writeup, I am opting to use D = 32. The purpose of this change is to make the performance of our load balancing strategies easier to reason about -- a queue depth of 8 stands to pose a significant performance bottleneck, which I realized following testing. Using D = 8, systems were rarely able to run my LockFree implementation with faster than a 4x speedup, and consistently performed worse than serial performance. Using D = 32 alleviated the bottleneck posed by queue depth -- my LockFree implementation was able to put up as much speedup as in HW2. Removing this bottleneck allows me to reason about the advantages and disadvantages of different load balancing techniques. I still include data from past trials where D = 8, for reference.
 	\end{itemize}
 	\item These changes are consistent with my previously stated invariants
 \end{itemize}
@@ -103,21 +104,25 @@ As mentioned above, I will not try to verify if my Awesome load balancing strate
 \section{Results}
 As of writing this, $correct\_test\_script.sh$ confirms that my implementations are consistent. Moreover, testing revealed that while timing my implementation using the StopWatch\_t type was inconsistent, my timed flag implementation was consistent; For M = 2000 ms, test\_script.sh should complete after ~80 minutes. When using stopwatch based dispatchers, the script did not complete its task within 90 minutes; when using my timed flag, the test script completed its run in at most 82 minutes.
 \\\\
-The raw performance data for the Idle Lock Overhead and Speedup tests are stored in a folder called $HW3b/hw3b/exp\_data$. This folder contains the .csv files that describe performance data for a given experiment. overhead.csv describes the data from experiment 1. speedup.csv contains all other necessary data
+The raw performance data for the Idle Lock Overhead and Speedup tests are stored in two folders; performance data for trials where $D = 8$ are in the folder called $HW3b/hw3b/exp\_data\_8$; performance data for trials where $D = 32$ are in the folder called $HW3b/hw3b/exp\_data\_32$. overhead.csv describes the data from experiment 1. speedup.csv contains speedup data from experiments 2, 3, and 4.
 \\
 This data was collected by running implementations for given number of trials, calculating measurements per trial, and taking median values. As such there is no other collected data other than median speedup and throughput. That data was not recorded as it did not serve the purpose of analysis and would've have complicated my data storage scheme.
 \\\\
 As per how many trials I utilized; for experiments utilizing uniform packets, I used 5 trials; for experiments utilizing exponential packets, I used 11 trials.
 \\\\
-I took this data and plotted it using the script analyze.py. These graphs are stored in the folder $HW3b/Docs/graphs$. I will display these graphs below:
+I took this data and plotted it using the script analyze.py. These graphs are stored in the folder $HW3b/Docs/graphs$. I will display the graphs pertinent to my analysis below:
 \subsection{Experiment 1: Idle Lock Overhead}
-\includegraphics[scale=0.5]{graphs/overhead.png}\\
+\includegraphics[scale=0.5]{graphs/overhead_8.png}\\\\
+\includegraphics[scale=0.5]{graphs/overhead_32.png}\\\\
 \subsection{Experiment 2: Speedup with Uniform Load}
-\includegraphics[scale=0.5]{graphs/speedup_t:H.png}\\
+\includegraphics[scale=0.5]{graphs/speedup_t:H:8.png}\\\\
+\includegraphics[scale=0.5]{graphs/speedup_t:H:32.png}\\\\
 \subsection{Experiment 3: Speedup with Exponential Load}
-\includegraphics[scale=0.5]{graphs/speedup_f:H.png}\\
+\includegraphics[scale=0.5]{graphs/speedup_f:H:8.png}\\\\
+\includegraphics[scale=0.5]{graphs/speedup_f:H:32.png}\\\\
 \subsection{Experiment 4: Speedup with Exponential Load (Awesome Test)}
-\includegraphics[scale=0.5]{graphs/speedup_f:A.png}\\
+\includegraphics[scale=0.5]{graphs/speedup_f:A:8.png}\\\\
+\includegraphics[scale=0.5]{graphs/speedup_f:A:32.png}\\\\
 
 \section{Analysis}
 

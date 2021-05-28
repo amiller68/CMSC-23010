@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.1.23)  27 MAY 2021 18:48
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.1.23)  28 MAY 2021 16:22
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -429,145 +429,225 @@ Underfull \hbox (badness 10000) in paragraph at lines 82--87
  []
 
 [2]
-Underfull \hbox (badness 10000) in paragraph at lines 104--113
+Underfull \hbox (badness 10000) in paragraph at lines 105--114
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 104--113
+Underfull \hbox (badness 10000) in paragraph at lines 105--114
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 104--113
+Underfull \hbox (badness 10000) in paragraph at lines 105--114
 
  []
 
 
-Overfull \hbox (28.76004pt too wide) in paragraph at lines 104--113
+Overfull \hbox (28.76004pt too wide) in paragraph at lines 105--114
 \OT1/cmr/m/n/10 I took this data and plot-ted it us-ing the script an-a-lyze.py
 . These graphs are stored in the folder $\OML/cmm/m/it/10 HW\OT1/cmr/m/n/10 3\O
 ML/cmm/m/it/10 b=Docs=graphs$\OT1/cmr/m/n/10 .
  []
 
-<graphs/overhead.png, id=74, 1084.05pt x 1084.05pt>
-File: graphs/overhead.png Graphic file (type png)
-<use graphs/overhead.png>
-Package pdftex.def Info: graphs/overhead.png  used on input line 114.
+<graphs/overhead_8.png, id=74, 1084.05pt x 1084.05pt>
+File: graphs/overhead_8.png Graphic file (type png)
+<use graphs/overhead_8.png>
+Package pdftex.def Info: graphs/overhead_8.png  used on input line 115.
+(pdftex.def)             Requested size: 542.02368pt x 542.02368pt.
+<graphs/overhead_32.png, id=76, 1084.05pt x 1084.05pt>
+File: graphs/overhead_32.png Graphic file (type png)
+<use graphs/overhead_32.png>
+Package pdftex.def Info: graphs/overhead_32.png  used on input line 116.
 (pdftex.def)             Requested size: 542.02368pt x 542.02368pt.
 
-Overfull \hbox (70.5512pt too wide) in paragraph at lines 114--115
+Overfull \hbox (70.5512pt too wide) in paragraph at lines 115--117
 [] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 114--115
+Underfull \hbox (badness 10000) in paragraph at lines 115--117
 
  []
 
-[3]
-<graphs/speedup_t:H.png, id=80, 1084.05pt x 1084.05pt>
-File: graphs/speedup_t:H.png Graphic file (type png)
-<use graphs/speedup_t:H.png>
-Package pdftex.def Info: graphs/speedup_t:H.png  used on input line 116.
-(pdftex.def)             Requested size: 542.02368pt x 542.02368pt.
 
-Overfull \hbox (70.5512pt too wide) in paragraph at lines 116--117
+Overfull \hbox (70.5512pt too wide) in paragraph at lines 115--117
 [] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 116--117
+Underfull \hbox (badness 10000) in paragraph at lines 115--117
 
  []
 
-[4 <./graphs/overhead.png>]
-<graphs/speedup_f:H.png, id=86, 1084.05pt x 1084.05pt>
-File: graphs/speedup_f:H.png Graphic file (type png)
-<use graphs/speedup_f:H.png>
-Package pdftex.def Info: graphs/speedup_f:H.png  used on input line 118.
+
+Underfull \hbox (badness 10000) in paragraph at lines 115--117
+
+ []
+
+[3] [4 <./graphs/overhead_8.png>]
+<graphs/speedup_t:H:8.png, id=86, 1084.05pt x 1084.05pt>
+File: graphs/speedup_t:H:8.png Graphic file (type png)
+<use graphs/speedup_t:H:8.png>
+Package pdftex.def Info: graphs/speedup_t:H:8.png  used on input line 118.
+(pdftex.def)             Requested size: 542.02368pt x 542.02368pt.
+<graphs/speedup_t:H:32.png, id=87, 1084.05pt x 1084.05pt>
+File: graphs/speedup_t:H:32.png Graphic file (type png)
+<use graphs/speedup_t:H:32.png>
+Package pdftex.def Info: graphs/speedup_t:H:32.png  used on input line 119.
 (pdftex.def)             Requested size: 542.02368pt x 542.02368pt.
 
-Overfull \hbox (70.5512pt too wide) in paragraph at lines 118--119
+Overfull \hbox (70.5512pt too wide) in paragraph at lines 118--120
 [] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 118--119
+Underfull \hbox (badness 10000) in paragraph at lines 118--120
 
  []
 
-[5 <./graphs/speedup_t:H.png>]
-<graphs/speedup_f:A.png, id=92, 1084.05pt x 1084.05pt>
-File: graphs/speedup_f:A.png Graphic file (type png)
-<use graphs/speedup_f:A.png>
-Package pdftex.def Info: graphs/speedup_f:A.png  used on input line 120.
-(pdftex.def)             Requested size: 542.02368pt x 542.02368pt.
 
-Overfull \hbox (70.5512pt too wide) in paragraph at lines 120--121
+Overfull \hbox (70.5512pt too wide) in paragraph at lines 118--120
 [] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 120--121
-
- []
-
-[6 <./graphs/speedup_f:H.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 125--148
+Underfull \hbox (badness 10000) in paragraph at lines 118--120
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 125--148
+Underfull \hbox (badness 10000) in paragraph at lines 118--120
+
+ []
+
+[5 <./graphs/overhead_32.png>] [6 <./graphs/speedup_t:H:8.png>]
+<graphs/speedup_f:H:8.png, id=98, 1084.05pt x 1084.05pt>
+File: graphs/speedup_f:H:8.png Graphic file (type png)
+<use graphs/speedup_f:H:8.png>
+Package pdftex.def Info: graphs/speedup_f:H:8.png  used on input line 121.
+(pdftex.def)             Requested size: 542.02368pt x 542.02368pt.
+<graphs/speedup_f:H:32.png, id=99, 1084.05pt x 1084.05pt>
+File: graphs/speedup_f:H:32.png Graphic file (type png)
+<use graphs/speedup_f:H:32.png>
+Package pdftex.def Info: graphs/speedup_f:H:32.png  used on input line 122.
+(pdftex.def)             Requested size: 542.02368pt x 542.02368pt.
+
+Overfull \hbox (70.5512pt too wide) in paragraph at lines 121--123
+[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 121--123
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 125--148
+Overfull \hbox (70.5512pt too wide) in paragraph at lines 121--123
+[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 121--123
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 125--148
+Underfull \hbox (badness 10000) in paragraph at lines 121--123
 
  []
 
-[7 <./graphs/speedup_f:A.png>] [8]
-Underfull \hbox (badness 10000) in paragraph at lines 149--159
+[7 <./graphs/speedup_t:H:32.png>] [8 <./graphs/speedup_f:H:8.png>]
+<graphs/speedup_f:A:8.png, id=111, 1084.05pt x 1084.05pt>
+File: graphs/speedup_f:A:8.png Graphic file (type png)
+<use graphs/speedup_f:A:8.png>
+Package pdftex.def Info: graphs/speedup_f:A:8.png  used on input line 124.
+(pdftex.def)             Requested size: 542.02368pt x 542.02368pt.
+<graphs/speedup_f:A:32.png, id=112, 1084.05pt x 1084.05pt>
+File: graphs/speedup_f:A:32.png Graphic file (type png)
+<use graphs/speedup_f:A:32.png>
+Package pdftex.def Info: graphs/speedup_f:A:32.png  used on input line 125.
+(pdftex.def)             Requested size: 542.02368pt x 542.02368pt.
+
+Overfull \hbox (70.5512pt too wide) in paragraph at lines 124--126
+[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 124--126
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 162--170
-
- []
-
-[9]
-Underfull \hbox (badness 10000) in paragraph at lines 172--181
-
+Overfull \hbox (70.5512pt too wide) in paragraph at lines 124--126
+[] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 172--181
+Underfull \hbox (badness 10000) in paragraph at lines 124--126
 
  []
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 183.
-[10]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 183.
+
+Underfull \hbox (badness 10000) in paragraph at lines 124--126
+
+ []
+
+[9 <./graphs/speedup_f:H:32.png>] [10 <./graphs/speedup_f:A:8.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 130--153
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 130--153
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 130--153
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 130--153
+
+ []
+
+[11 <./graphs/speedup_f:A:32.png>] [12]
+Underfull \hbox (badness 10000) in paragraph at lines 154--164
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 167--175
+
+ []
+
+[13]
+Underfull \hbox (badness 10000) in paragraph at lines 177--186
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 177--186
+
+ []
+
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 188.
+[14]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 188.
  (./amiller68_writeup3b.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 183.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 183.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 188.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 188.
 Package rerunfilecheck Info: File `amiller68_writeup3b.out' has not changed.
 (rerunfilecheck)             Checksum: 02AD530680DF01CA3DB64F098A18633E;935.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 183.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 188.
  ) 
 Here is how much of TeX's memory you used:
- 7379 strings out of 483107
- 109898 string characters out of 5964630
+ 7407 strings out of 483107
+ 110604 string characters out of 5964630
  378805 words of memory out of 5000000
- 22246 multiletter control sequences out of 15000+600000
+ 22266 multiletter control sequences out of 15000+600000
  541580 words of font info for 59 fonts, out of 8000000 for 9000
  59 hyphenation exceptions out of 8191
  34i,6n,31p,911b,503s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -580,10 +660,10 @@ mf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist
 /fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/
 type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/
 public/amsfonts/cm/cmti10.pfb>
-Output written on amiller68_writeup3b.pdf (10 pages, 524321 bytes).
+Output written on amiller68_writeup3b.pdf (14 pages, 936334 bytes).
 PDF statistics:
- 157 PDF objects out of 1000 (max. 8388607)
- 124 compressed objects within 2 object streams
- 24 named destinations out of 1000 (max. 500000)
- 125 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 183 PDF objects out of 1000 (max. 8388607)
+ 138 compressed objects within 2 object streams
+ 28 named destinations out of 1000 (max. 500000)
+ 145 words of extra memory for PDF output out of 10000 (max. 10000000)
 

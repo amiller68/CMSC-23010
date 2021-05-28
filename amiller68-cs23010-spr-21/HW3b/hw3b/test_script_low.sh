@@ -10,14 +10,14 @@ exp2="t"
 
 
 #Experiment 1: Idle Lock overhead
-M="200"
+M="1000"
 N="1"
 W="25 50 100 200 400 800"
 U="t"
 D="32"
 L="p a"
 
-num_trials=1
+num_trials=3
 
 if [[ $exp1 = "t" ]]
 then
@@ -72,7 +72,7 @@ then
 fi
 
 #Speedup with Varying Loads, straetgies, and locks
-M="200"
+M="1000"
 N="1 2 3 7 13 27"
 W="1000 2000 4000 8000"
 U="t f"
@@ -93,9 +93,9 @@ then
         #If this is an test utilizing Uniform packets
         if [[ $u = "t" ]]
         then
-            num_trials=1
+            num_trials=3
         else
-            num_trials=1
+            num_trials=5
         fi
 
         for w in $W; do
